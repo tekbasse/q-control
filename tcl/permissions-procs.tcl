@@ -574,7 +574,7 @@ ad_proc -private qc_permission_p {
     return $allowed_p
 }
 
-ad_proc -private qc_pkg_admin_required  {
+ad_proc -public qc_pkg_admin_required  {
 } {
     Requires user to have package admin permission, or redirects to register page.
 } {
@@ -587,3 +587,43 @@ ad_proc -private qc_pkg_admin_required  {
     }
     return $admin_p
 }
+
+ad_proc -public qc_roles_of_prop_priv {
+    property_id
+    {privilege "" }
+} {
+    Returns a list of role_ids, given property_id (and privilege, if any). Helps determine who to contact regarding a notification.
+} {
+    upvar 1 instance_id instance_id
+    set role_ids_list [list ]
+    if { $privilege ne "" } {
+        set role_ids_list [db_list hf_roles_ids_of_prop_priv_r "select role_id from hf_property_role_privilege_map where property_id=:property_id and privilege=:privilege"]
+    } else {
+        set role_ids_list [db_list hf_roles_ids_of_property_r "select role_id from hf_property_role_privilege_map where property_id=:property_id"]
+    }
+    return $role_ids_list
+}
+
+ad_proc -public qc_property_id_exists_q {
+    property
+} {
+    Answers question. Does property_id exist? 1 yes, 0 no.
+} {
+    upvar 1 instance_id instance_id
+    set exists_p [db_0or1row hf_property_role_privilege_map_exists_q "select property_id from hf_property_role_privilege_map where instance_id=:instance_id limit 1"]
+    return $exists_p
+}
+
+ad_proc -public qc_property_role_privilege_map_exists_q {
+    peroperty_id
+    role_id
+    privilege
+    {instance_id ""}
+} {
+    Returns 1 if combination exists. Otherwise returns 0.
+} {
+    set exists_p [db_0or1row default_privileges_check { select property_id as test from hf_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id=:instance_id } ]
+    return $exists_p
+}
+
+ad_proc -public qc_property_role_privilege_map_create {
