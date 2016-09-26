@@ -61,7 +61,10 @@ ad_proc -private qc_property_id {
     @return property_id or -1 if doesn't exist.
 } {
     set id ""
-    db_0or1row qc_property_id_read "select id from qc_property where instance_id=:instance_id and property=:property"
+    if { $instance_id ne "" } {
+        db_0or1row qc_property_id_read {select id from qc_property where instance_id=:instance_id and property=:property}
+    } else {
+        db_0or1row qc_property_id_read_n {select id from qc_property where instance_id is null  and property=:property}
     return $id
 }
 
@@ -76,28 +79,36 @@ ad_proc -private qc_property_create {
 } {
     set return_val 0
     if { $property ne "" && $title ne "" } {
-        if { $instance_id eq "" } {
-            # set instance_id package_id
-            qc_set_instance_id
-        }
-        # check permissions
-        set this_user_id [ad_conn user_id]
-        set create_p [qc_permission_p $this_user_id $customer_id permissions_properties create $instance_id]
-        
-        if { $create_p } {
-            # vet input data
-            if { [string length [string trim $title]] > 0 && [string length $property] > 0 } {
-                set exists_p [expr { [qc_property_id $property $instance_id] > -1 } ]
-                if { !$exists_p } {
-                    # create property
-                    db_dml qc_property_create {insert into qc_property
+        # vet input data
+        if { [string length [string trim $title]] > 0 && [string length $property] > 0 } {
+            # does it already exist?
+            set prop_id [qc_property_id $property $instance_id]
+            if { $prop_id ne "" } {
+                # create property
+                if { $instance_id ne "" } {
+                    db_dml qc_property_create_i {insert into qc_property
                         (instance_id, property, title)
                         values (:instance_id, :property, :title) }
-                    set return_val 1
+                } else {
+                    db_dml qc_property_create_i {insert into qc_property
+                        (property, title)
+                        values (:property, :title) }
                 }
+                if { [ns_conn isconnected] } {
+                    set this_user_id [ad_conn user_id]
+                    ns_log Notice "qc_property_create.98: user_id '${this_user_id}' created property '${property}' title '${title}' instance_id '${instance_id}'"
+                } else {
+                    ns_log Notice "qc_property_create.104: Created property '${property}' title '${title}' instance_id '${instance_id}'"
+                }
+                set return_val 1
             }
-        } 
-    }
+        }
+    } 
+
+
+        
+
+
     return $return_val
 }
 
@@ -166,28 +177,36 @@ ad_proc -private qc_property_write {
     return $return_val
 }
 
+ad_proc -public qc_property_id_exists_q {
+    property_id
+} {
+    Answers question: Does property_id exist? 1 yes, 0 no.
+} {
+    upvar instance_id instance_id
+    set data_list [qc_property_read $property_id $instance_id]
+    if { [llength $data_list] > 0 } {
+        set exists_p 1
+    } else {
+        set exists_p 0
+    }
+    return $exists_p
+}
+
 ad_proc -private qc_property_read {
     property
-    {customer_id ""}
     {instance_id ""} 
 } {
     Returns property info as a list in the order id, title; or an empty list if property doesn't exist for property.
 } {
     set return_list [list ]
     if { $property ne "" } {
-        if { $instance_id eq "" } {
-            # set instance_id package_id
-            qc_set_instance_id
+        # use db_list_of_lists to get info, then pop the record out of the list of lists .. to a list.
+        if { $instance_id ne "" } {
+            set qc_properties_lists [db_list_of_lists qc_property_set_read {select id, title from qc_property where instance_id=:instance_id and property=:property}]
+        } else {
+            set qc_properties_lists [db_list_of_lists qc_property_set_read_i {select id, title from qc_property where instance_id is null and property=:property}]
         }
-        # check permissions
-        set this_user_id [ad_conn user_id]
-        set read_p [qc_permission_p $this_user_id $customer_id permissions_properties read $instance_id]
-        
-        if { $read_p } {
-            # use db_list_of_lists to get info, then pop the record out of the list of lists .. to a list.
-            set qc_properties_lists [db_list_of_lists "qc_property_set_read" "select id, title from qc_property where instance_id=:instance_id and property=:property "]
-            set return_list [lindex $qc_properties_lists 0]
-        }
+        set return_list [lindex $qc_properties_lists 0]
     }
     return $return_list
 }
@@ -440,7 +459,11 @@ ad_proc -private qc_role_id_of_label {
     Returns role_id from label or empty string if role doesn't exist.
 } {
     set id ""
-    db_0or1row qc_role_id_get "select id from qc_role where instance_id=:instance_id and label=:label"
+    if { $instance_id ne "" } {
+        db_0or1row qc_role_id_get {select id from qc_role where instance_id=:instance_id and label=:label}
+    } else {
+        db_0or1row qc_role_id_of_label_r {select id from qc_role where label=:label and instance_id is nul}
+    }
     return $id
 }
 
@@ -486,12 +509,56 @@ ad_proc -private qc_role_read {
 
 ad_proc -private qc_roles {
     {instance_id ""} 
+    {include_ids_p "0"}
 } {
     Returns roles as a list, with each list item consisting of label, title, and description as a list, or an empty list if no roles exist.
 } {
-    set role_list [db_list_of_lists qc_roles_read "select label,title,description from qc_role where instance_id=:instance_id"]
+    if { $instance_id ne "" } {
+        if { $include_ids_p } {
+            set role_list [db_list_of_lists qc_roles_read_w_id {select id,label,title,description from qc_role where instance_id=:instance_id}]
+        } else {
+            set role_list [db_list_of_lists qc_roles_read {select label,title,description from qc_role where instance_id=:instance_id}]
+        }
+    } else {
+        if { $include_ids_p } {
+            set role_list [db_list_of_lists qc_roles_read_w_id_null {select id,label,title,description from qc_role where instance_id is null}]
+        } else {
+            set role_list [db_list_of_lists qc_roles_read_null {select label,title,description from qc_role where instance_id is null }]
+        }
+        if { [ns_conn isconnected] } {
+            set this_user_id [ad_conn user_id]
+            ns_log Notice "qc_roles.522: user_id '${this_user_id}' requested roles with ids instance_id '${instance_id}'"
+        }
+    }
     return $role_list
 }
+
+ad_proc -public qc_properties {
+    {instance_id ""}
+    {include_ids_p "0"}
+} {
+    Returns properties as a list, with each list item consisting of property, title as a list, or an empty list if no properties exist.
+} {
+    if { $instance_id ne "" } {
+        if { $include_ids_p } {
+            set property_list [db_list_of_lists qc_property_read_w_id {select id,property,title from qc_property where instance_id=:instance_id}]
+        } else {
+            set property_list [db_list_of_lists qc_property_read {select property,title from qc_property where instance_id=:instance_id}]
+        }
+    } else {
+        if { $include_ids_p } {
+            set property_list [db_list_of_lists qc_property_read_w_id_null {select id,property,title from qc_property where instance_id is null}]
+        } else {
+            set property_list [db_list_of_lists qc_property_read_null {select property,title from qc_property where instance_id is null }]
+        }
+        if { [ns_conn isconnected] } {
+            set this_user_id [ad_conn user_id]
+            ns_log Notice "qc_properties.548: user_id '${this_user_id}' requested properties with ids instance_id '${instance_id}'"
+        }
+    }
+    return $property_list
+}
+
 
 ad_proc -private qc_permission_p {
     user_id 
@@ -597,12 +664,13 @@ ad_proc -public qc_roles_of_prop_priv {
     upvar 1 instance_id instance_id
     set role_ids_list [list ]
     if { $privilege ne "" } {
-        set role_ids_list [db_list hf_roles_ids_of_prop_priv_r "select role_id from hf_property_role_privilege_map where property_id=:property_id and privilege=:privilege"]
+        set role_ids_list [db_list qc_roles_ids_of_prop_priv_r "select role_id from qc_property_role_privilege_map where property_id=:property_id and privilege=:privilege"]
     } else {
-        set role_ids_list [db_list hf_roles_ids_of_property_r "select role_id from hf_property_role_privilege_map where property_id=:property_id"]
+        set role_ids_list [db_list qc_roles_ids_of_property_r "select role_id from qc_property_role_privilege_map where property_id=:property_id"]
     }
     return $role_ids_list
 }
+
 
 ad_proc -public qc_property_id_exists_q {
     property
@@ -610,7 +678,7 @@ ad_proc -public qc_property_id_exists_q {
     Answers question. Does property_id exist? 1 yes, 0 no.
 } {
     upvar 1 instance_id instance_id
-    set exists_p [db_0or1row hf_property_role_privilege_map_exists_q "select property_id from hf_property_role_privilege_map where instance_id=:instance_id limit 1"]
+    set exists_p [db_0or1row qc_property_role_privilege_map_exists_q "select property_id from qc_property_role_privilege_map where instance_id=:instance_id limit 1"]
     return $exists_p
 }
 
@@ -622,8 +690,39 @@ ad_proc -public qc_property_role_privilege_map_exists_q {
 } {
     Returns 1 if combination exists. Otherwise returns 0.
 } {
-    set exists_p [db_0or1row default_privileges_check { select property_id as test from hf_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id=:instance_id } ]
+    if { $instance_id ne "" } {
+        set exists_p [db_0or1row default_privileges_check { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id=:instance_id } ]
+    } else {
+        set exists_p [db_0or1row default_privileges_check_null { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id is null } ]
+    }
     return $exists_p
 }
 
 ad_proc -public qc_property_role_privilege_map_create {
+    property_id
+    role_id
+    privilege
+    {instance_id ""}
+} {
+    Create a property role privilege map.
+} {
+    set exists_p [qc_property_role_privilege_map_exists_q $property_id $role_id $priv]
+    if { !$exists_p } {
+        if { $instance_id ne "" } {
+            db_dml default_privileges_cr_i {
+                insert into qc_property_role_privilege_map
+                (property_id,role_id,privilege,instance_id)
+                values (:property_id,:role_id,:priv,:instance_id)
+            }
+        } else {
+            db_dml default_privileges_cr {
+                insert into qc_property_role_privilege_map
+                (property_id,role_id,privilege)
+                values (:property_id,:role_id,:priv)
+            }
+        }
+    }
+    ns_log Notice "qc_property_role_privilege_map_create.657: Added privilege '${priv}' to role '${division}' role_id '${role_id}' role_label '${role_label}' instance_id '${instance_id}'"
+    return 1
+}
+
