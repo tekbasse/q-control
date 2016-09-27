@@ -55,7 +55,7 @@ ad_proc -private qc_property_id {
     non_assets
     published
     assets
- 
+    
     @param property
 
     @return property_id or -1 if doesn't exist.
@@ -65,20 +65,19 @@ ad_proc -private qc_property_id {
         db_0or1row qc_property_id_read {select id from qc_property where instance_id=:instance_id and property=:property}
     } else {
         db_0or1row qc_property_id_read_n {select id from qc_property where instance_id is null  and property=:property}
-    return $id
-}
+        return $id
+    }
 
-ad_proc -private qc_property_create {
-    property
-    title
-    {contact_id ""}
-    {instance_id ""}
-} {
-    Creates a property_label. Returns 1 if successful, otherwise returns 0.
-    property is either a type of property or a hard-coded type defined via qc_property_create, for example: contact_record , or qal_contact_id coded. If referencing qal_contact_id prepend "contact_id-" to the id number.
-} {
-    set return_val 0
-    if { $property ne "" && $title ne "" } {
+    ad_proc -private qc_property_create {
+        property
+        title
+        {contact_id ""}
+        {instance_id ""}
+    } {
+        Creates a property_label. Returns 1 if successful, otherwise returns 0.
+        property is either a type of property or a hard-coded type defined via qc_property_create, for example: contact_record , or qal_contact_id coded. If referencing qal_contact_id prepend "contact_id-" to the id number.
+    } {
+        set return_val 0
         # vet input data
         if { [string length [string trim $title]] > 0 && [string length $property] > 0 } {
             # does it already exist?
@@ -104,11 +103,6 @@ ad_proc -private qc_property_create {
             }
         }
     } 
-
-
-        
-
-
     return $return_val
 }
 
@@ -478,8 +472,8 @@ ad_proc -private qc_role_id_exists_q {
         qc_set_instance_id
     }
     # check permissions  Not necessary, because disclosure is extremely limited compared to speed.
-#    set this_user_id [ad_conn user_id]
-#    set read_p [qc_permission_p $this_user_id $role_id permissions_roles read $instance_id]
+    #    set this_user_id [ad_conn user_id]
+    #    set read_p [qc_permission_p $this_user_id $role_id permissions_roles read $instance_id]
     set exists_p 0
     set exists_p [db_0or1row qc_role_id_exists_q "select label from qc_role where instance_id=:instance_id and id=:role_id"]
     return $exists_p
@@ -570,25 +564,25 @@ ad_proc -private qc_permission_p {
     Checks for permission  in place of permission::permission_p within a package configured to use this.
 
     Permissions works like this: 
- 
+    
     Each asset (think object) is associated with a property type ie a type of object (not necessarily an object_id)
     Each asset_id is associated with a contact (contact_id).
     A privilege is the same as in permission::permission_p (read/write/create/admin).
     Default property_labels consist of:
-      assets, 
-      permissions_roles, 
-      permissions_privileges, 
-      permissions_properties, and
-      published.
+    assets, 
+    permissions_roles, 
+    permissions_privileges, 
+    permissions_properties, and
+    published.
     Each role is assigned privileges on property_labels. Default privilege is none.
     Default roles consist of:
-      technical_contact,
-      technical_staff,
-      billing_contact,
-      billing_staff,
-      primary_contact,
-      primary_staff, and
-      site_developer.
+    technical_contact,
+    technical_staff,
+    billing_contact,
+    billing_staff,
+    primary_contact,
+    primary_staff, and
+    site_developer.
     Each property is associated with a contact, and each user assigned roles.
     This proc confirms that one of roles assigned to user_id can do privilege on contact's property_label.
 } {
