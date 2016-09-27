@@ -768,3 +768,59 @@ ad_proc -public qc_user_ids_of_contact_id {
     }
     return $qal_contact_ids_list
 }
+
+ad_proc -public qc_parameter_get {
+    parameter_name
+    instance_id
+    default_val
+} {
+    This is a wrapper for parameter::get, so that it works
+    for all cases of q-control implementations
+    where instance_id from qc_set_instance_id may be different than
+    package_id, and not have the requested parameter.
+} {
+
+    # apparently there is no "info exists" for parameters
+    # Do we default to specific case first? Or, try qc_set_instance_id first?
+    # Try qc_set_instance_id first, to allow for more flexibility with implementation.
+    set param_v [parameter::get -parameter $parameter_name -package_id $instance_id ]
+
+    if { [ns_conn isconnected] } {
+        # This does not for scheduled procs, where the instance_id is
+        # passed via no connection
+        set package_id [ad_conn package_id]
+    } else {
+        # This is a scheduled proc.
+        # Check for any param_instance_id-to-package_id mapping
+        # Since ad_conn is not available, implemented packages must avoid parameter name collisions.
+        # Mapping is populated via qc_parameter_map 
+        # which is added to qc_pkg_admin_required, because each visited package using q-control needs mapped.
+        set package_id $instance_id
+        db_0or1row qc_pkg_parameter_map_get {select package_id from qc_pkg_parameter_map where qc_instance_id=:instance_id and parameter_name=:parameter_name} 
+    }
+    if { $param_v eq "" && $instance_id ne $package_id } {
+        set param_v [parameter::get -parameter $parameter_name -package_id $package_id]
+    }
+    if { $param_v eq "" } {
+        set param_v $default_val
+    }
+    return $param_v
+}
+
+ad_proc qc_parameter_map {
+    parameter_name_list
+} {
+    Sets mapping for these parameter names, so values can be accessed within a shared q-control zone across multiple package_ids in a subsite etc.
+} {
+    set package_id [ad_conn package_id]
+    set package_key [ad_conn package_key]
+    set qc_instance_id [qc_set_instance_id]
+    set parameter_list [db_list qc_pkg_parameter_names_get {select parameter_name from apm_parameters where package_key=:package_key} ]
+    if check doesnot exist
+    foreach param $parameter_list {
+##code
+        # see if parameter exists for qc_instance_id, if so, log a warning of name collision that will break if called within q-control system
+        insert into qc_table parameter_name,qc_instance_id,package_id
+    }
+
+}
