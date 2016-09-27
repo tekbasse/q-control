@@ -739,7 +739,7 @@ ad_proc -public qc_contact_ids_for_user {
 } {
     if { $instance_id eq "" } {
         # set instance_id package_id
-        set instance_id [ad_conn package_id]
+        set instance_id [qc_set_instance_id]
     }
     if { $user_id eq "" } {
         set user_id [ad_conn user_id]
@@ -757,7 +757,7 @@ ad_proc -public qc_user_ids_of_contact_id {
 } {
     upvar 1 instance_id u_instance_id
     if { [ns_conn isconnected] } {
-        set instance_id [ad_conn package_id] 
+        set instance_id [qc_set_instance_id] 
     } else {
         set instance_id $u_instance_id
     }
