@@ -18,7 +18,7 @@ ad_library {
 #     admins to assign custom permissions administration to non-admins
 #     role-based assigning, permissions admin of contact assets and adding assets (without adding new roles, property types etc)
 
-ad_proc qc_set_instance_id {
+ad_proc -public qc_set_instance_id {
 } {
     Sets instance_id in calling environment. 
 
@@ -68,44 +68,44 @@ ad_proc -private qc_property_id {
         db_0or1row qc_property_id_read {select id from qc_property where instance_id=:instance_id and property=:property}
     } else {
         db_0or1row qc_property_id_read_n {select id from qc_property where instance_id is null  and property=:property}
-        return $id
     }
-
-    ad_proc -private qc_property_create {
-        property
-        title
-        {contact_id ""}
-        {instance_id ""}
-    } {
-        Creates a property_label. Returns 1 if successful, otherwise returns 0.
-        property is either a type of property or a hard-coded type defined via qc_property_create, for example: contact_record , or qal_contact_id coded. If referencing qal_contact_id prepend "contact_id-" to the id number.
-    } {
-        set return_val 0
-        # vet input data
-        if { [string length [string trim $title]] > 0 && [string length $property] > 0 } {
-            # does it already exist?
-            set prop_id [qc_property_id $property $instance_id]
-            if { $prop_id ne "" } {
-                # create property
-                if { $instance_id ne "" } {
-                    db_dml qc_property_create_i {insert into qc_property
-                        (instance_id, property, title)
-                        values (:instance_id, :property, :title) }
-                } else {
-                    db_dml qc_property_create_i {insert into qc_property
-                        (property, title)
-                        values (:property, :title) }
-                }
-                if { [ns_conn isconnected] } {
-                    set this_user_id [ad_conn user_id]
-                    ns_log Notice "qc_property_create.98: user_id '${this_user_id}' created property '${property}' title '${title}' instance_id '${instance_id}'"
-                } else {
-                    ns_log Notice "qc_property_create.104: Created property '${property}' title '${title}' instance_id '${instance_id}'"
-                }
-                set return_val 1
+    return $id
+}
+    
+ad_proc -private qc_property_create {
+    property
+    title
+    {contact_id ""}
+    {instance_id ""}
+} {
+    Creates a property_label. Returns 1 if successful, otherwise returns 0.
+    property is either a type of property or a hard-coded type defined via qc_property_create, for example: contact_record , or qal_contact_id coded. If referencing qal_contact_id prepend "contact_id-" to the id number.
+} {
+    set return_val 0
+    # vet input data
+    if { [string length [string trim $title]] > 0 && [string length $property] > 0 } {
+        # does it already exist?
+        set prop_id [qc_property_id $property $instance_id]
+        if { $prop_id ne "" } {
+            # create property
+            if { $instance_id ne "" } {
+                db_dml qc_property_create_i {insert into qc_property
+                    (instance_id, property, title)
+                    values (:instance_id, :property, :title) }
+            } else {
+                db_dml qc_property_create_i {insert into qc_property
+                    (property, title)
+                    values (:property, :title) }
             }
+            if { [ns_conn isconnected] } {
+                set this_user_id [ad_conn user_id]
+                ns_log Notice "qc_property_create.98: user_id '${this_user_id}' created property '${property}' title '${title}' instance_id '${instance_id}'"
+            } else {
+                ns_log Notice "qc_property_create.104: Created property '${property}' title '${title}' instance_id '${instance_id}'"
+            }
+            set return_val 1
         }
-    } 
+    }
     return $return_val
 }
 
@@ -557,7 +557,7 @@ ad_proc -public qc_properties {
 }
 
 
-ad_proc -private qc_permission_p {
+ad_proc -public qc_permission_p {
     user_id 
     contact_id
     property_label 
@@ -596,8 +596,8 @@ ad_proc -private qc_permission_p {
     # first, verify that the user has adequate system permission.
     # This needs to work at least for admins, in order to set up qc_permissions.
     #set allowed_p [permission::permission_p -party_id $user_id -object_id $instance_id -privilege $privilege]
-    set allowed_p [permission::permission_p -party_id $user_id -object_id $instance_id -privilege read]
-    set admin_p [permission::permission_p -party_id $user_id -object_id $instance_id -privilege admin]
+    set allowed_p [permission::permission_p -party_id $user_id -object_id [ad_conn package_id] -privilege read]
+    set admin_p [permission::permission_p -party_id $user_id -object_id [ad_conn package_id] -privilege admin]
     if { $admin_p } {
         # user is set to go. No need to check further.
     } elseif { $allowed_p && $privilege eq "read" && $property_label eq "published" } {
@@ -643,8 +643,7 @@ ad_proc -public qc_pkg_admin_required  {
     Requires user to have package admin permission, or redirects to register page.
 } {
     set user_id [ad_conn user_id]
-    set package_id [ad_conn package_id]
-    set admin_p [permission::permission_p -party_id $user_id -object_id $package_id -privilege admin]
+    set admin_p [permission::permission_p -party_id $user_id -object_id [ad_conn package_id] -privilege admin]
     if { !$admin_p } {
         ad_redirect_for_registration
         ad_script_abort
