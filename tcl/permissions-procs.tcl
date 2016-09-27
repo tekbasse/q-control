@@ -22,9 +22,9 @@ ad_proc qc_set_instance_id {
 } {
     Sets instance_id in calling environment. 
 
-    @return instance_id in calling enviornment
+    @return instance_id. If instance_id not set in calling enviornment, also sets it.
 } {
-    upvar 1 instance_id instance_id
+    upvar 1 instance_id u_instance_id
     # By using this proc, instances can be configured by
     # package parameter, package_id, subsite package_id etc 
     # without requiring changes throughout code.
@@ -36,7 +36,10 @@ ad_proc qc_set_instance_id {
     } elseif { $override eq "subsite_id" } {
         set instance_id [ad_conn $override ]
     }
-    return 1
+    if { ![info exists u_instance_id] } {
+        set u_instance_id $instance_id
+    }
+    return $instance_id
 }
 
 ad_proc -private qc_property_id {
