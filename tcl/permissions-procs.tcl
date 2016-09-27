@@ -647,6 +647,9 @@ ad_proc -public qc_pkg_admin_required  {
     if { !$admin_p } {
         ad_redirect_for_registration
         ad_script_abort
+    } else {
+        # Earliest case where we can be sure to load the map via a connection:
+        qc_parameter_map
     }
     return $admin_p
 }
@@ -796,7 +799,7 @@ ad_proc -public qc_parameter_get {
         # Mapping is populated via qc_parameter_map 
         # which is added to qc_pkg_admin_required, because each visited package using q-control needs mapped.
         set package_id $instance_id
-        db_0or1row qc_pkg_parameter_map_get {select package_id from qc_pkg_parameter_map where qc_instance_id=:instance_id and parameter_name=:parameter_name} 
+        db_0or1row qc_pkg_parameter_map_get {select pkg_id as package_id from qc_package_parameter_map where qc_id=:instance_id and param_name=:parameter_name} 
     }
     if { $param_v eq "" && $instance_id ne $package_id } {
         set param_v [parameter::get -parameter $parameter_name -package_id $package_id]
@@ -808,19 +811,30 @@ ad_proc -public qc_parameter_get {
 }
 
 ad_proc qc_parameter_map {
-    parameter_name_list
 } {
-    Sets mapping for these parameter names, so values can be accessed within a shared q-control zone across multiple package_ids in a subsite etc.
+    Sets mapping for these parameter names, so values can be accessed within a shared q-control zone across multiple package_ids in a subsite etc. Returns 1 if already mapped. Otherwise returns 0.
 } {
     set package_id [ad_conn package_id]
     set package_key [ad_conn package_key]
     set qc_instance_id [qc_set_instance_id]
     set parameter_list [db_list qc_pkg_parameter_names_get {select parameter_name from apm_parameters where package_key=:package_key} ]
-    if check doesnot exist
-    foreach param $parameter_list {
-##code
-        # see if parameter exists for qc_instance_id, if so, log a warning of name collision that will break if called within q-control system
-        insert into qc_table parameter_name,qc_instance_id,package_id
+    set a_param [lindex $parameter_list 0]
+    set exists_p 0
+    if { $a_param ne "" } {
+        set exists_p [db_0or1row qc_pkg_param_map_exists_q {select pkg_id from qc_package_parameter_map where param_name=:a_param and pkg_id=:package_id}]
     }
-
+    if { !$exists_p } {
+        foreach param $parameter_list {
+           set multi_p [db_0or1row qc_pkg_param_multi_check {select qc_id from qc_pacakge_parameter where param_name=:param and pkg_id=:package_id limit 1} ]
+            if { $multi_p } {
+                ns_log Warning "qc_parameter_map. parameter name collision. parameter_name '${parameter_name}' package_id '${package_id}' qc_instance_id '${qc_instance_id}'. Multiple keys will break qc_parameter_get if parameter referenced"
+                db_dml qc_pkg_param_map_create {
+                    insert into qc_package_parameter_map 
+                    (param_name,qc_id,pkg_id)
+                    values (:param,:qc_instance_id,:package_id)
+                }
+            }
+        }
+    }
+    return $exists_p
 }

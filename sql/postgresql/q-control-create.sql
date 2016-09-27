@@ -169,3 +169,14 @@ CREATE TABLE qc_id_object_id_map (
 create index qc_id_object_id_map_qc_id_idx on qc_id_object_id_map (qc_id);
 create index qc_id_object_id_map_object_id_idx on qc_id_object_id_map (object_id);
 
+CREATE TABLE qc_package_parameter_map (
+       -- apm_parameters.parameter_name
+       param_name varchar(100),
+       -- q-control instance_id from qc_set_instance_id
+       qc_id integer,
+       -- from ad_conn package_id
+       pkg_id integer
+);
+
+create index qc_package_parameter_map_param_name_idx on qc_package_parameter_map (param_name);
+create index qc_package_parameter_map_qc_id on qc_package_parameter_map (qc_id);
