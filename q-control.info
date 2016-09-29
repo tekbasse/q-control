@@ -21,7 +21,7 @@
         <callbacks>
         </callbacks>
         <parameters>
-            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="instanceId"  description="Set to subsite_id, package_id or a specific package_id number, or leave blank for default (package_id)." section_name="security"/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="instanceIdOverride"  description="Set to subsite_id, package_id or a specific package_id number, or leave blank for default (package_id)." section_name="security"/>
         </parameters>
 
     </version>
