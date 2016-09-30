@@ -60,9 +60,4 @@ Users with OpenACS Package Admin privilege admin approval for package separately
 Sitewide admins have admin rights for all implemented packages.
 Some apps, such as hosting-farm delegate some admin rights to read-only users in context of Q-control approvals.
 </li></ul>
-<h3>
-Requirements
-</h3>
-<p>Packages implementing q-control should verify that 
-there are no name collisions between package parameters that will be sharing the same zone or instance_id.
-</p>
+<p>For usage, see <a href="design">design</a> documentation.</p>
