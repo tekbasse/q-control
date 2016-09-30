@@ -30,7 +30,7 @@ ad_proc -public qc_set_instance_id {
     # without requiring changes throughout code.
     set instance_id [ad_conn package_id]
     #set subsite_id \[ad_conn subsite_id\]
-    set override [parameter::get -package_id $instance_id -parameter instanceId -default $pkg_id]
+    set override [parameter::get -package_id $instance_id -parameter instanceId -default $instance_id]
     if { [qf_is_natural_number $override] } {
         set instance_id $override
     } elseif { $override eq "subsite_id" } {
