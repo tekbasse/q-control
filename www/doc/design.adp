@@ -26,7 +26,7 @@ instead of instance_id provided by <code>qc_set_instance_id</code>,
 so that package admin access for any particular package is always enforced with direct Openacs permissions.
 </li><li>
 Avoid name collisions between package parameters.
-Verify that parameter names are unique for packages sharing q-control zone (subsite or instance_id).
+Verify that parameter names are unique for packages sharing q-control zone (subsite_id or package_id).
 </li>
 </ol>
 </p>
