@@ -30,7 +30,7 @@ ad_proc -public qc_set_instance_id {
     # without requiring changes throughout code.
     set instance_id [ad_conn package_id]
     #set subsite_id \[ad_conn subsite_id\]
-    set override [parameter::get -package_id $instance_id -parameter instanceId -default $instance_id]
+    set override [parameter::get -package_id $instance_id -parameter instanceIdOverride -default $instance_id]
     if { [qf_is_natural_number $override] } {
         set instance_id $override
     } elseif { $override eq "subsite_id" } {
@@ -476,9 +476,13 @@ ad_proc -private qc_role_id_exists_q {
     }
     # check permissions  Not necessary, because disclosure is extremely limited compared to speed.
     #    set this_user_id [ad_conn user_id]
-    #    set read_p [qc_permission_p $this_user_id $role_id permissions_roles read $instance_id]
+    #    set read_p \[qc_permission_p $this_user_id $role_id permissions_roles read $instance_id\]
     set exists_p 0
-    set exists_p [db_0or1row qc_role_id_exists_q "select label from qc_role where instance_id=:instance_id and id=:role_id"]
+    if { $instance_id ne "" } {
+        set exists_p [db_0or1row qc_role_id_exists_q {select label from qc_role where instance_id=:instance_id and id=:role_id}]
+    } else {
+        set exists_p [db_0or1row qc_role_id_exists_q_null {select label from qc_role where instance_id is null and id=:role_id}]
+    }
     return $exists_p
 }
 
