@@ -20,7 +20,7 @@
 --                                                 allowed_p = permissions_call(OBJECT, WHO, WHAT)
 --  Although roles can be awkwardly managed using existing OpenACS admin UI,
 --  This approach still doesn't allow an easy way to represent types of objects.
---  Also, there is a need for some power users, such as customers to be able to 
+--  Also, there is a need for some power users, such as contacts to be able to 
 --  delegate roles to others.
 
 -- AMS3 PERMISSIONS
@@ -32,14 +32,14 @@
 
 -- The operating paradigm is: SUBJECT ACTION OBJECT. 
 
--- SUBJECT is a function of user_id and customer_id
+-- SUBJECT is a function of user_id and contact_id
 -- ACTION  must be the rudimentary read/write/create/delete/admin used in computer resource management
 --         after passing through the complexity of roles.
--- OBJECT  is an asset_id or type of object, screened via customer_id
+-- OBJECT  is an asset_id or type of object, screened via contact_id
 
 --In order of operation (and dependencies):
--- WHO/SUBJECT: user_id is checked against customer_id (if not admin_p per OpenACS).
---      role_id(s) is/are determined from customer_id and user_id
+-- WHO/SUBJECT: user_id is checked against contact_id (if not admin_p per OpenACS).
+--      role_id(s) is/are determined from contact_id and user_id
 -- OBJECT:      property_id mapped from hard coded label or asset_type
 -- WHAT/ACTION: read/write/create/delete/admin is determined from referencing a table of property_id and role_id (a type of role: admin,tech,owner etc ie property_id -> role_id)
 
@@ -47,12 +47,12 @@
 -- 1. a user can have more than one role
 --    default: all roles for first user_id assigned to qc_asset
 --             no roles to all others assigned to qc_asset
--- 2. a user can have different roles on different customer accounts and same account
+-- 2. a user can have different roles on different contact accounts and same account
 
 -- Permissions are pre-mapped to scale processes while allowing dynamic changes to role-level permissions.
 
 -- mapped permissions include:
---     customer_contracts and billing info must have billing, primary, or site_developer roles (via contracts/select, main/select)
+--     contact_contracts and billing info must have billing, primary, or site_developer roles (via contracts/select, main/select)
 --     view detail/create/edit qc_assets must have technical_contact role (via main/select)
 --     view/edit the contact info of user roles must have support role (via support/select)
 --     view/create/edit support tickets with categories based on role must have specific role type (via support/select)
@@ -61,18 +61,18 @@
 --     view/create/edit service contracts billing/primary/admin roles
 
 -- for example
--- a technical_contact or technical_staff can modify customer controlled, technical parts of an qc_asset
+-- a technical_contact or technical_staff can modify contact controlled, technical parts of an qc_asset
 
 ------------------------------------------------------------------- saving following notes until transistion complete
 -- asset_type_id 1:0..* property_id
 -- asset_type_id 1:0..* asset_id
--- qal_customer_id 1..*:1..* user_id 1..*:1..* role_id
--- WHO: qc_role.role_id (as a function of user_id and customer_id)
+-- qal_contact_id 1..*:1..* user_id 1..*:1..* role_id
+-- WHO: qc_role.role_id (as a function of user_id and contact_id)
 -- WHAT: qc_property_id_permissions_map.privilege (as a function of role and asset type)
 -- OBJECT: qc_asset_type_property.property_id
 -- assigned roles for a user are qc_user_roles_map.qc_role_id  Given: user_id 
--- assigned roles for a customer are qc_user_roles_map.qc_role_id  Given: qal_customer_id
--- assigned roles for a user of a customer are qc_user_roles_map.qc_role_id  Given: qal_customer_id and qal_customer_id
+-- assigned roles for a contact are qc_user_roles_map.qc_role_id  Given: qal_contact_id
+-- assigned roles for a user of a contact are qc_user_roles_map.qc_role_id  Given: qal_contact_id and qal_contact_id
 -- available roles: qc_user_roles_map.qc_role_id  
 -- each role may have a privilege on a property_id, no role means no privilege (cannot read)
 ----------------------------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ SELECT nextval ('qc_permissions_id_seq');
 
 
 CREATE TABLE qc_role (
-    -- qal_customer_id and user_id distill to a role_id(s) list
+    -- qal_contact_id and user_id distill to a role_id(s) list
     instance_id integer,
     -- qc_role.id
     id      integer unique not null DEFAULT nextval ( 'qc_permissions_id_seq' ),
@@ -109,7 +109,7 @@ CREATE TABLE qc_property (
    instance_id     integer,
    -- qc_asset_type.id or hard-coded label, such as main_contact_record,admin_contact_record,tech_contact_record etc.
    -- permissions_properties, permissions_roles, permissions_privileges
-   -- customer_assets, customer_other (records etc), published (for ex. for ecommerce functions, assets (general customer, published etc)
+   -- contact_assets, contact_other (records etc), published (for ex. for ecommerce functions, assets (general contact, published etc)
    -- aka property_label
    property   varchar(24),
    -- property_id
@@ -124,19 +124,19 @@ create index qc_property_id_idx on qc_property (id);
 create index qc_property_title_idx on qc_property (title);
 
 CREATE TABLE qc_user_roles_map (
-    -- Permission for user_id to perform af hs_roles.allow on qal_customer_id qc_assets
-    -- This is where roles for qal_customer_id are assigned to user_id
+    -- Permission for user_id to perform af hs_roles.allow on qal_contact_id qc_assets
+    -- This is where roles for qal_contact_id are assigned to user_id
     instance_id     integer,
     user_id         integer,
-    -- from qal_customer.id defined in accounts-ledger package
-    qal_customer_id integer,
+    -- from qal_contact.id defined in accounts-ledger package
+    qal_contact_id integer,
     -- qc_role.id
     qc_role_id      integer
 );
 
 create index qc_user_roles_map_instance_id_idx on qc_user_roles_map (instance_id);
 create index qc_user_roles_map_user_id_idx on qc_user_roles_map (user_id);
-create index qc_user_roles_map_qal_customer_id_idx on qc_user_roles_map (qal_customer_id);
+create index qc_user_roles_map_qal_contact_id_idx on qc_user_roles_map (qal_contact_id);
 create index qc_user_roles_map_qc_role_id_idx on qc_user_roles_map (qc_role_id);
 
 CREATE TABLE qc_property_role_privilege_map (

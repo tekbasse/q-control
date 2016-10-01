@@ -290,7 +290,7 @@ ad_proc -private qc_roles_of_user {
     if { $contact_id eq "" } {
         set roles_list [db_list qc_roles_of_user "select distinct on (label) label from qc_role where instance_id=:instance_id and id in (select qc_role_id from qc_user_roles_map where instance_id=:instance_id and user_id=:user_id)"] 
     } elseif { [qf_is_natural_number $contact_id] } {
-        set roles_list [db_list qc_roles_of_user "select distinct on (label) label from qc_role where instance_id=:instance_id and id in (select qc_role_id from qc_user_roles_map where instance_id=:instance_id and user_id=:user_id and contact_id=:contact_id)"]
+        set roles_list [db_list qc_roles_of_user "select distinct on (label) label from qc_role where instance_id=:instance_id and id in (select qc_role_id from qc_user_roles_map where instance_id=:instance_id and user_id=:user_id and qal_contact_id=:contact_id)"]
     } 
     return $roles_list
 }
@@ -747,8 +747,19 @@ ad_proc -public qc_contact_ids_for_user {
         set user_id [ad_conn user_id]
     }
     #qal_contact_id defined by qal_contact.id accounts-ledger/sql/postgresql/entities-channels-create.sql or similar
-    set qal_contact_ids_list [db_list qal_contact_ids_get "select qal_contact_id from qc_user_roles_map where instance_id=:instance_id and user_id=:user_id"]
+    set qal_contact_ids_list [db_list qal_contact_ids_get {select qal_contact_id from qc_user_roles_map where instance_id=:instance_id and user_id=:user_id}]
     return $qal_contact_ids_list
+}
+
+ad_proc -public qc_roles_of_user_contact_id {
+    user_id
+    contact_id
+    instance_id 
+} {
+    Returns a list of role_id's that a user of contact_id has been assigned, or empty list if none found.
+} {
+    set role_ids_list [db_list qc_user_roles_for_cust_get {select hf_role_id from hf_user_roles_map where instance_id=:instance_id and qal_contact_id=:contact_id and user_id=:user_id}]
+    return $role_ids_list
 }
 
 ad_proc -public qc_user_ids_of_contact_id {
