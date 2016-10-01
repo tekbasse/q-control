@@ -21,17 +21,17 @@ aa_register_case -cats {api smoke} permissions_check {
             hf_asset_type_id_init $instance_id
             
             # Identify and test full range of parameters
-            set asset_type_ids_list [db_list hf_property_asset_type_ids_get {
-                select distinct on (asset_type_id) asset_type_id
-                from hf_property } ]
+            set asset_type_ids_list [db_list qc_property_properties_get {
+                select distinct on (property) property
+                from qc_property } ]
             set asset_type_ids_count [llength $asset_type_ids_list]
 
-            set roles_lists [hf_roles $instance_id]
+            set roles_lists [qc_roles $instance_id]
             set roles_list [list ]
             foreach role_list $roles_lists {
                 set role [lindex $role_list 0]
                 lappend roles_list $role
-                set role_id [hf_role_id_of_label $role $instance_id]
+                set role_id [qc_role_id_of_label $role $instance_id]
                 set role_id_arr(${role}) $role_id
             }
             # keep namespace clean to help prevent bugs in test code
@@ -40,7 +40,7 @@ aa_register_case -cats {api smoke} permissions_check {
             unset roles_lists
 
             # create a lookup truth table of permissions
-            # hf_asset_type_ids_list vs roles_list
+            # qc_asset_type_ids_list vs roles_list
             # with value being 1 read, 2 create, 4 write, 8 delete, 16 admin
             # which results in these values, based on existing assignments:
             # 0,1,3,7,15,31
@@ -171,7 +171,7 @@ aa_register_case -cats {api smoke} permissions_check {
             # Create customer records
             set customer_id 3
             foreach role $roles_list {
-                hf_user_role_add $customer_id $mnp_user_id $role_id_arr(${role}) $instance_id
+                qc_user_role_add $customer_id $mnp_user_id $role_id_arr(${role}) $instance_id
             }
 
             # Case 4: A customer with desparate user roles
@@ -196,7 +196,7 @@ aa_register_case -cats {api smoke} permissions_check {
             # Create customer records
             set customer_id 4
             foreach role $roles_list {
-                hf_user_role_add $customer_id $c4ui(${role}) $role_id_arr(${role}) $instance_id
+                qc_user_role_add $customer_id $c4ui(${role}) $role_id_arr(${role}) $instance_id
                 ns_log Notice "tcl/test/q-control-procs.tcl.200: added customer_id ${customer_id} user_id $uid role $role"
             }
 
@@ -226,7 +226,7 @@ aa_register_case -cats {api smoke} permissions_check {
             foreach role $roles_list {
                 set uid $c5ui_arr(${role})
                 # make sure every role is assigned to a user
-                hf_user_role_add $customer_id $uid $role_id_arr(${role}) $instance_id
+                qc_user_role_add $customer_id $uid $role_id_arr(${role}) $instance_id
                 ns_log Notice "tcl/test/q-control-procs.tcl.230: added customer_id ${customer_id} user_id $uid role $role"
                 lappend c5uwr_larr(${uid}) $role
                 # assign a random role to same user.
@@ -234,7 +234,7 @@ aa_register_case -cats {api smoke} permissions_check {
                 set u_role [lindex $roles_list $r]
                 if { $u_role ne "" } {
                     ns_log Notice "tcl/test/q-control-procs.tcl.310. u_role '${u_role}'"
-                    hf_user_role_add $customer_id $uid $role_id_arr(${u_role}) $instance_id
+                    qc_user_role_add $customer_id $uid $role_id_arr(${u_role}) $instance_id
                     ns_log Notice "tcl/test/q-control-procs.tcl.238: added customer_id ${customer_id} user_id $uid role $u_role"
                     lappend c5uwr_larr(${uid}) $u_role
                 } else {
@@ -295,7 +295,7 @@ aa_register_case -cats {api smoke} permissions_check {
             # Loop through each subcase
             set customer_id 3
             # at_id = asset_type_id
-            set c3_role_ids_list [db_list hf_user_roles_for_cust_get_c3 "select hf_role_id from hf_user_roles_map where instance_id=:instance_id and qal_customer_id=:customer_id and user_id=:mnp_user_id"]
+            set c3_role_ids_list [db_list qc_user_roles_for_cust_get_c3 "select qc_role_id from qc_user_roles_map where instance_id=:instance_id and qal_customer_id=:customer_id and user_id=:mnp_user_id"]
             ns_log Notice "tcl/test/q-control-procs.tcl.303 c3_role_ids_list '${c3_role_ids_list}'"
             foreach at_id $asset_type_ids_list {
                 foreach rpn $rpn_list {
@@ -386,7 +386,7 @@ aa_register_case -cats {api smoke} permissions_check {
                     incr t_len -1
                     set i [randomRange $t_len]
                     set role [lindex $t_list $i]
-                    hf_user_role_delete $customer_id $c5uid $role_id_arr(${role}) $instance_id
+                    qc_user_role_delete $customer_id $c5uid $role_id_arr(${role}) $instance_id
                     ns_log Notice "tcl/test/q-control-procs.tcl.255: delet customer_id ${customer_id} user_id $c5uid role $role"
                     set t_list [lreplace $t_list $i $i]
                 }

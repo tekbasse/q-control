@@ -735,7 +735,7 @@ ad_proc -public qc_contact_ids_for_user {
 
     @param user_id     Checks for user_id if not blank, otherwise checks for user_id from connection.
     @param instance_id Checks for user_id in context of instance_id if not blank, otherwise from connection.
-    @param role_id_list If nonempty, scopes to these roles ( hf_role.id) See qc_roles_of_prop_priv
+    @param role_id_list If nonempty, scopes to these roles ( qc_role.id) See qc_roles_of_prop_priv
     @return Returns qal_contact_id numbers in a list.
 
 } {
@@ -758,7 +758,7 @@ ad_proc -public qc_roles_of_user_contact_id {
 } {
     Returns a list of role_id's that a user of contact_id has been assigned, or empty list if none found.
 } {
-    set role_ids_list [db_list qc_user_roles_for_cust_get {select hf_role_id from hf_user_roles_map where instance_id=:instance_id and qal_contact_id=:contact_id and user_id=:user_id}]
+    set role_ids_list [db_list qc_user_roles_for_cust_get {select qc_role_id from qc_user_roles_map where instance_id=:instance_id and qal_contact_id=:contact_id and user_id=:user_id}]
     return $role_ids_list
 }
 
@@ -776,9 +776,9 @@ ad_proc -public qc_user_ids_of_contact_id {
     }
 
     if { $role_id_list eq "" } {
-        set qal_contact_ids_list [db_list hf_user_role_of_customer_id_r {select user_id from hf_user_roles_map where instance_id=:instance_id and qal_customer_id=:customer_id}]
+        set qal_contact_ids_list [db_list qc_user_role_of_customer_id_r {select user_id from qc_user_roles_map where instance_id=:instance_id and qal_customer_id=:customer_id}]
     } else {
-        set qal_contact_ids_list [db_list hf_user_role_of_customer_id_r "select user_id from hf_user_roles_map where instance_id=:instance_id and qal_customer_id=:customer_id and role_id in ([template::util::tcl_to_sql_list $role_ids_list)"]
+        set qal_contact_ids_list [db_list qc_user_role_of_customer_id_r "select user_id from qc_user_roles_map where instance_id=:instance_id and qal_customer_id=:customer_id and role_id in ([template::util::tcl_to_sql_list $role_ids_list)"]
     }
     return $qal_contact_ids_list
 }
