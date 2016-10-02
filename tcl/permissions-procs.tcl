@@ -61,7 +61,7 @@ ad_proc -private qc_property_id {
     
     @param property
 
-    @return property_id or -1 if doesn't exist.
+    @return property_id or empty string if doesn't exist.
 } {
     set id ""
     if { $instance_id ne "" } {

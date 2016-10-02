@@ -387,14 +387,14 @@ aa_register_case -cats {api smoke} permissions_check {
                     set i [randomRange $t_len]
                     set role [lindex $t_list $i]
                     qc_user_role_delete $customer_id $c5uid $role_id_arr(${role}) $instance_id
-                    ns_log Notice "tcl/test/q-control-procs.tcl.255: delet customer_id ${customer_id} user_id $c5uid role $role"
+                    ns_log Notice "tcl/test/q-control-procs.tcl.255: delete customer_id ${customer_id} user_id $c5uid role $role"
                     set t_list [lreplace $t_list $i $i]
                 }
                 set c5uwr_larr(${c5uid}) $t_list
             }
 
 
-
+ns_log Notice "tcl/test/q-control-procs.tcl.397"
 
             # Case 6 process
             set customer_id 5
@@ -405,6 +405,7 @@ aa_register_case -cats {api smoke} permissions_check {
                     foreach rpn $rpn_list {
                         set hp_allowed_p [qc_permission_p $c5uid $customer_id $at_id $rpn $instance_id]
                         set rp_allowed_p 0
+ns_log Notice "tcl/test/q-control-procs.tcl.408"
                         foreach role $c5uwr_larr(${c5uid}) {
                             if { [expr { $rpv_arr(${rpn}) & $priv_arr(${role},${at_id}) } ] > 0 } {
                                 set rp_allowed_p 1
@@ -425,7 +426,7 @@ aa_register_case -cats {api smoke} permissions_check {
                 
             }
             
-
+            ns_log Notice "tcl/test/q-control-procs.tcl.429 end"
         } \
         -teardown_code {
             # 
