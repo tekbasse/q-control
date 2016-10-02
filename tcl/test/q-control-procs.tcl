@@ -21,11 +21,11 @@ aa_register_case -cats {api smoke} permissions_check {
             hf_asset_type_id_init $instance_id
             
             # Identify and test full range of parameters
-            set asset_type_ids_list [db_list qc_property_properties_get {
-                select distinct on (property) property
-                from qc_property } ]
+            set asset_type_ids_list [qc_property_list $instance_id]
             set asset_type_ids_count [llength $asset_type_ids_list]
-
+            if  { $asset_type_ids_count == 0 } {
+                ns_log Error "q-control/tcl/test/q-control-procs.tcl.27: No property values to test."
+            }
             set roles_lists [qc_roles $instance_id]
             set roles_list [list ]
             foreach role_list $roles_lists {

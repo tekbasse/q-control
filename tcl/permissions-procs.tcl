@@ -93,7 +93,7 @@ ad_proc -private qc_property_create {
                     (instance_id, property, title)
                     values (:instance_id, :property, :title) }
             } else {
-                db_dml qc_property_create_i {insert into qc_property
+                db_dml qc_property_create {insert into qc_property
                     (property, title)
                     values (:property, :title) }
             }
@@ -162,10 +162,8 @@ ad_proc -private qc_property_write {
                         set title=:title, property=:property 
                         where instance_id=:instance_id and property_id=:property_id}
                 } else {
-                    # create property
-                    db_dml qc_property_create {insert into qc_property
-                        (instance_id, property, title)
-                        values (:instance_id, :property, :title) }
+                    ns_log Warning "qc_property_write: failed. Ref not exist property_id '${property_id}' instance_id '${instance_id}' property '${property}' title '${title}' contact_id '${contact_id}'"
+                    set return_val 0
                 }
                 set return_val 1
             }
@@ -208,6 +206,18 @@ ad_proc -private qc_property_read {
     return $return_list
 }
 
+ad_proc -private qc_property_list {
+    {instance_id ""}
+} {
+    Returns a list of available property options for instance_id
+} {
+    if { $instance_id ne "" } {
+        set qc_property_list [db_list qc_property_r_all {select property from qc_property where instance_id=:instance_id}]
+    } else {
+        set qc_property_list [db_list qc_property_r_all_i {select property from qc_property where instance_id is null}]
+    }
+ return $qc_property_list
+}
 
 ad_proc -private qc_contact_roles_of_user {
     {contact_id ""}
@@ -691,7 +701,7 @@ ad_proc -public qc_property_id_exists_q {
 }
 
 ad_proc -public qc_property_role_privilege_map_exists_q {
-    peroperty_id
+    property_id
     role_id
     privilege
     {instance_id ""}
@@ -699,12 +709,26 @@ ad_proc -public qc_property_role_privilege_map_exists_q {
     Returns 1 if combination exists. Otherwise returns 0.
 } {
     if { $instance_id ne "" } {
-        set exists_p [db_0or1row default_privileges_check { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id=:instance_id } ]
+        set exists_p [db_0or1row privilege_map_check { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id=:instance_id } ]
     } else {
-        set exists_p [db_0or1row default_privileges_check_null { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id is null } ]
+        set exists_p [db_0or1row privilege_map_check_null { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id is null } ]
     }
     return $exists_p
 }
+
+ad_proc -public qc_property_role_privilege_maps_exist_q {
+    {instance_id ""}
+} {
+    Returns 1 if any combination exists. Otherwise returns 0.
+} {
+    if { $instance_id ne "" } {
+        set exists_p [db_0or1row default_privileges_check { select property_id as test from qc_property_role_privilege_map where instance_id=:instance_id limit 1} ]
+    } else {
+        set exists_p [db_0or1row default_privileges_check_null { select property_id as test from qc_property_role_privilege_map where instance_id is null limit 1 } ]
+    }
+    return $exists_p
+}
+
 
 ad_proc -public qc_property_role_privilege_map_create {
     property_id
