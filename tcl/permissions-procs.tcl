@@ -371,8 +371,11 @@ ad_proc -private qc_role_create {
     if { $create_p } {
         # vet input data
         if { [string length [string trim $title]] > 0 && [string length $label] > 0 } {
-            set exists_p [qc_role_id_exists_q $label $instance_id]
-            if { !$exists_p } {
+            set role_id [qc_role_id_of_label $label $instance_id]
+            if { $role_id ne "" } {
+                #set exists_p 1
+            } else {
+                #set exists_p 0
                 # create role
                 db_dml qc_role_create {insert into qc_role
                     (instance_id, label, title, description)
@@ -430,15 +433,17 @@ ad_proc -private qc_role_write {
     if { $write_p } {
         # vet input data
         if { [string length [string trim $title]] > 0 && [string length $label] > 0 } {
-            set exists_p [qc_role_id_exists_q $label $instance_id]
-            if { $exists_p } {
+            set role_id [qc_role_id_of_label $label $instance_id]
+            if { $role_id ne "" } {
+                #set exists_p 1
                 # update role
                 db_dml qc_role_update {update qc_role
                     set label=:label, title=:title, description=:description where instance_id=:instance_id and id=:role_id}
                 set return_val 1
             } else {
+                #set exists_p 0
                 # create role
-                db_dml qc_role_create {insert into qc_role
+                db_dml qc_role_write {insert into qc_role
                     (instance_id, label, title, description)
                     values (:instance_id, :label, :title, :description) }
                 set return_val 1
@@ -459,7 +464,7 @@ ad_proc -private qc_role_id_of_label {
     if { $instance_id ne "" } {
         db_0or1row qc_role_id_get {select id from qc_role where instance_id=:instance_id and label=:label}
     } else {
-        db_0or1row qc_role_id_of_label_r {select id from qc_role where label=:label and instance_id is nul}
+        db_0or1row qc_role_id_of_label_r {select id from qc_role where label=:label and instance_id is null}
     }
     return $id
 }
@@ -780,9 +785,9 @@ ad_proc -public qc_user_ids_of_contact_id {
     }
 
     if { $role_id_list eq "" } {
-        set qal_contact_ids_list [db_list qc_user_role_of_customer_id_r {select user_id from qc_user_roles_map where instance_id=:instance_id and qal_customer_id=:customer_id}]
+        set qal_contact_ids_list [db_list qc_user_role_of_contact_id_r {select user_id from qc_user_roles_map where instance_id=:instance_id and qal_contact_id=:contact_id}]
     } else {
-        set qal_contact_ids_list [db_list qc_user_role_of_customer_id_r "select user_id from qc_user_roles_map where instance_id=:instance_id and qal_customer_id=:customer_id and role_id in ([template::util::tcl_to_sql_list $role_ids_list)"]
+        set qal_contact_ids_list [db_list qc_user_role_of_contact_id_r "select user_id from qc_user_roles_map where instance_id=:instance_id and qal_contact_id=:contact_id and role_id in ([template::util::tcl_to_sql_list $role_ids_list)"]
     }
     return $qal_contact_ids_list
 }
