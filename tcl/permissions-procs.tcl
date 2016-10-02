@@ -840,7 +840,7 @@ ad_proc qc_parameter_map {
     }
     if { !$exists_p } {
         foreach param $parameter_list {
-           set multi_p [db_0or1row qc_pkg_param_multi_check {select qc_id from qc_pacakge_parameter where param_name=:param and pkg_id=:package_id limit 1} ]
+           set multi_p [db_0or1row qc_pkg_param_multi_check {select qc_id from qc_package_parameter where param_name=:param and pkg_id=:package_id limit 1} ]
             if { $multi_p } {
                 #if { $param ne "instanceIdOverride" } {
                 ns_log Warning "qc_parameter_map. parameter name collision. parameter_name '${parameter_name}' package_id '${package_id}' qc_instance_id '${qc_instance_id}'. Multiple keys will break qc_parameter_get if parameter referenced"
