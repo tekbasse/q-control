@@ -3,12 +3,12 @@ ad_library {
     @creation-date 2015-03-19
 }
 
-aa_register_case -cats {api smoke} permissions_check {
+aa_register_case -cats {api smoke} qc_hf_permission_check {
     Test qc_permissions_p proc for all cases
 } {
     aa_run_with_teardown \
-        -rollback \
         -test_code {
+# -rollback \
             ns_log Notice "aa_register_case.13: Begin test permissions_check"
             # Use default permissions provided by tcl/q-control-init.tcl
             # Yet, users must have read access permissions or test fails
@@ -24,9 +24,13 @@ aa_register_case -cats {api smoke} permissions_check {
             set asset_type_ids_list [qc_property_list $instance_id]
             set asset_type_ids_count [llength $asset_type_ids_list]
             if  { $asset_type_ids_count == 0 } {
-                ns_log Error "q-control/tcl/test/q-control-procs.tcl.27: No property values to test."
+                ns_log Error "q-control/tcl/test/q-control-procs.tcl.27: No property to test."
             }
             set roles_lists [qc_roles $instance_id]
+            if  { [llength $roles_lists ] == 0 } {
+                ns_log Error "q-control/tcl/test/q-control-procs.tcl.31: No role to test."
+            }
+
             set roles_list [list ]
             foreach role_list $roles_lists {
                 set role [lindex $role_list 0]
@@ -248,6 +252,7 @@ aa_register_case -cats {api smoke} permissions_check {
             # Loop through each subcase
             set rp_allowed_p 1
             set customer_id ""
+           
             foreach role $roles_list {
                 # at_id = asset_type_id
                 foreach at_id $asset_type_ids_list {
@@ -405,7 +410,7 @@ ns_log Notice "tcl/test/q-control-procs.tcl.397"
                     foreach rpn $rpn_list {
                         set hp_allowed_p [qc_permission_p $c5uid $customer_id $at_id $rpn $instance_id]
                         set rp_allowed_p 0
-ns_log Notice "tcl/test/q-control-procs.tcl.408"
+                        #ns_log Notice "tcl/test/q-control-procs.tcl.408 at_id $at_id rpn $rpn"
                         foreach role $c5uwr_larr(${c5uid}) {
                             if { [expr { $rpv_arr(${rpn}) & $priv_arr(${role},${at_id}) } ] > 0 } {
                                 set rp_allowed_p 1
