@@ -86,7 +86,7 @@ ad_proc -private qc_property_create {
     if { [string length [string trim $title]] > 0 && [string length $property] > 0 } {
         # does it already exist?
         set prop_id [qc_property_id $property $instance_id]
-        if { $prop_id ne "" } {
+        if { $prop_id eq "" } {
             # create property
             if { $instance_id ne "" } {
                 db_dml qc_property_create_i {insert into qc_property
@@ -97,14 +97,14 @@ ad_proc -private qc_property_create {
                     (property, title)
                     values (:property, :title) }
             }
-            if { [ns_conn isconnected] } {
-                set this_user_id [ad_conn user_id]
-                ns_log Notice "qc_property_create.98: user_id '${this_user_id}' created property '${property}' title '${title}' instance_id '${instance_id}'"
-            } else {
-                ns_log Notice "qc_property_create.104: Created property '${property}' title '${title}' instance_id '${instance_id}'"
-            }
-            set return_val 1
         }
+        if { [ns_conn isconnected] } {
+            set this_user_id [ad_conn user_id]
+            ns_log Notice "qc_property_create.98: user_id '${this_user_id}' created property '${property}' title '${title}' instance_id '${instance_id}'"
+        } else {
+            ns_log Notice "qc_property_create.104: Created property '${property}' title '${title}' instance_id '${instance_id}'"
+        }
+        set return_val 1
     }
     return $return_val
 }
@@ -368,17 +368,21 @@ ad_proc -private qc_role_create {
 } {
     Creates a role. Returns role_id, or 0 if unsuccessful.
 } {
-    if { $instance_id eq "" } {
-        # set instance_id package_id
-        qc_set_instance_id
-    }
 
     # table qc_role has instance_id, id (seq nextval), label, title, description, where label includes technical_contact, technical_staff, billing_*, primary_*, site_developer etc roles
-    # check permissions
-    set this_user_id [ad_conn user_id]
-    set create_p [qc_permission_p $this_user_id $contact_id permissions_roles create $instance_id]
+    # check permissions if connected, otherwise assume this is via -init.tcl file
+    set connected_p [ns_conn isconnected]
+    set create_p 0
+    if { $connected_p } {
+        if { $instance_id eq "" } {
+            # set instance_id package_id
+            qc_set_instance_id
+        }
+        set this_user_id [ad_conn user_id]
+        set create_p [qc_permission_p $this_user_id $contact_id permissions_roles create $instance_id]
+    }
     set return_val 0
-    if { $create_p } {
+    if { $create_p || !$connected_p } {
         # vet input data
         if { [string length [string trim $title]] > 0 && [string length $label] > 0 } {
             set role_id [qc_role_id_of_label $label $instance_id]
@@ -393,7 +397,9 @@ ad_proc -private qc_role_create {
                 set return_val 1
             }
         }
-    } 
+    } else {
+        ns_log Warning "qc_role_create.530: role '${label}' not created for instance_id '${instance_id}'."
+    }
     return $return_val
 }
 
@@ -696,7 +702,7 @@ ad_proc -public qc_property_id_exists_q {
     Answers question. Does property_id exist? 1 yes, 0 no.
 } {
     upvar 1 instance_id instance_id
-    set exists_p [db_0or1row qc_property_role_privilege_map_exists_q "select property_id from qc_property_role_privilege_map where instance_id=:instance_id limit 1"]
+    set exists_p [db_0or1row qc_property_id_exists_q "select property_id from qc_property_role_privilege_map where instance_id=:instance_id limit 1"]
     return $exists_p
 }
 
@@ -709,9 +715,9 @@ ad_proc -public qc_property_role_privilege_map_exists_q {
     Returns 1 if combination exists. Otherwise returns 0.
 } {
     if { $instance_id ne "" } {
-        set exists_p [db_0or1row privilege_map_check { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id=:instance_id } ]
+        set exists_p [db_0or1row privilege_map_check { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:privilege and instance_id=:instance_id } ]
     } else {
-        set exists_p [db_0or1row privilege_map_check_null { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:priv and instance_id is null } ]
+        set exists_p [db_0or1row privilege_map_check_null { select property_id as test from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and privilege=:privilege and instance_id is null } ]
     }
     return $exists_p
 }
@@ -738,23 +744,23 @@ ad_proc -public qc_property_role_privilege_map_create {
 } {
     Create a property role privilege map.
 } {
-    set exists_p [qc_property_role_privilege_map_exists_q $property_id $role_id $priv]
+    set exists_p [qc_property_role_privilege_map_exists_q $property_id $role_id $privilege]
     if { !$exists_p } {
         if { $instance_id ne "" } {
             db_dml default_privileges_cr_i {
                 insert into qc_property_role_privilege_map
                 (property_id,role_id,privilege,instance_id)
-                values (:property_id,:role_id,:priv,:instance_id)
+                values (:property_id,:role_id,:privilege,:instance_id)
             }
         } else {
             db_dml default_privileges_cr {
                 insert into qc_property_role_privilege_map
                 (property_id,role_id,privilege)
-                values (:property_id,:role_id,:priv)
+                values (:property_id,:role_id,:privilege)
             }
         }
     }
-    ns_log Notice "qc_property_role_privilege_map_create.657: Added privilege '${priv}' to role '${division}' role_id '${role_id}' role_label '${role_label}' instance_id '${instance_id}'"
+    ns_log Notice "qc_property_role_privilege_map_create.657: Added privilege '${privilege}' to property_id '${property_id}' role_id '${role_id}' instance_id '${instance_id}'"
     return 1
 }
 
@@ -869,10 +875,10 @@ ad_proc qc_parameter_map {
     }
     if { !$exists_p } {
         foreach param $parameter_list {
-           set multi_p [db_0or1row qc_pkg_param_multi_check {select qc_id from qc_package_parameter where param_name=:param and pkg_id=:package_id limit 1} ]
+           set multi_p [db_0or1row qc_pkg_param_multi_check {select qc_id from qc_package_parameter_map where param_name=:param and pkg_id=:package_id limit 1} ]
             if { $multi_p } {
                 #if { $param ne "instanceIdOverride" } {
-                ns_log Warning "qc_parameter_map. parameter name collision. parameter_name '${parameter_name}' package_id '${package_id}' qc_instance_id '${qc_instance_id}'. Multiple keys will break qc_parameter_get if parameter referenced"
+                ns_log Warning "qc_parameter_map. parameter name collision. parameter_name '${parameter_name}' package_id '${package_id}' qc_instance_id '${qc_instance_id}'. Multiple keys will break qc_parameter_get if parameter referenced."
                 #}
             } else {
                 db_dml qc_pkg_param_map_create {

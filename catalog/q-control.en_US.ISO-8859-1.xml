@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="hosting-farm" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="q-control" locale="en_US" charset="ISO-8859-1">
   <msg key="instance_id">Instance id</msg>
-  <msg key="instance_id_def">An OpenACS package identifier ie object_id of a specific hosting-farm instance</msg>
+  <msg key="instance_id_def">An OpenACS package identifier ie object_id of a specific package instance</msg>
   <msg key="property">Property</msg>
-  <msg key="property_def">Something used in an activity.</msg>
-  <msg key="qal_customer_id">Customer id</msg>
-  <msg key="qal_customer_id_def">A customer's identifier (integer)</msg>
+  <msg key="property_def">Something used in an activity. A class of objects or object.</msg>
+  <msg key="qal_contact_id">Contact id</msg>
+  <msg key="qal_contact_id_def">A contact's identifier (integer)</msg>
   <msg key="qal_product_id">Product id</msg>
   <msg key="qal_product_id_def">A product's identifier</msg>
   <msg key="role">Role</msg>
