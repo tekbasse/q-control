@@ -891,3 +891,18 @@ ad_proc qc_parameter_map {
     }
     return $exists_p
 }
+
+ad_proc qc_privileges_of_prop_role {
+    property_id
+    role_id
+} {
+    returns a list of privilege, given property_id and role_id. 
+} {
+    upvar 1 instance_id instance_id
+    if { $instance_id ne "" } {
+        set priv_list [db_list qc_privileges_of_prop_role_i "select privilege from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and instance_id=:instance_id"] 
+    } else {
+        set priv_list [db_list qc_privileges_of_prop_role "select privilege from qc_property_role_privilege_map where property_id=:property_id and role_id=:role_id and instance_id is NULL"] 
+    }
+    return $priv_list
+}
