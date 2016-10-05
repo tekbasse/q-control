@@ -38,7 +38,7 @@ ad_proc -public qc_set_instance_id {
         } elseif { $override eq "subsite_id" } {
             set instance_id [ad_conn $override ]
         }
-        db_dml qc_set_instance_id { insert into qc_set_instance_id 
+        db_dml qc_set_instance_id { insert into qc_package_instance_map
             (pkg_id_key,qc_id)
             values (:pkg_id,:instance_id)
         }
