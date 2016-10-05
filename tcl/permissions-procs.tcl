@@ -28,13 +28,22 @@ ad_proc -public qc_set_instance_id {
     # By using this proc, instances can be configured by
     # package parameter, package_id, subsite package_id etc 
     # without requiring changes throughout code.
-    set instance_id [ad_conn package_id]
+    set pkg_id [ad_conn package_id]
     #set subsite_id \[ad_conn subsite_id\]
-    set override [parameter::get -package_id $instance_id -parameter instanceIdOverride -default $instance_id]
-    if { [qf_is_natural_number $override] } {
-        set instance_id $override
-    } elseif { $override eq "subsite_id" } {
-        set instance_id [ad_conn $override ]
+    db_0or1row qc_get_instance_id {select qc_id from qc_package_instance_map where pkg_id_key=:pkg_id}
+    if { ![info exists qc_id] } {
+        set override [parameter::get -package_id $pkg_id -parameter instanceIdOverride -default "subsite_id"]
+        if { [qf_is_natural_number $override] } {
+            set instance_id $override
+        } elseif { $override eq "subsite_id" } {
+            set instance_id [ad_conn $override ]
+        }
+        db_dml qc_set_instance_id { insert into qc_set_instance_id 
+            (pkg_id_key,qc_id)
+            values (:pkg_id,:instance_id)
+        }
+    } else {
+        set instance_id $pkg_id
     }
     if { ![info exists u_instance_id] } {
         set u_instance_id $instance_id
@@ -877,6 +886,7 @@ ad_proc qc_parameter_map {
         foreach param $parameter_list {
            set multi_p [db_0or1row qc_pkg_param_multi_check {select qc_id from qc_package_parameter_map where param_name=:param and pkg_id=:package_id limit 1} ]
             if { $multi_p } {
+                # anticipating need for override of override:
                 #if { $param ne "instanceIdOverride" } {
                 ns_log Warning "qc_parameter_map. parameter name collision. parameter_name '${parameter_name}' package_id '${package_id}' qc_instance_id '${qc_instance_id}'. Multiple keys will break qc_parameter_get if parameter referenced."
                 #}

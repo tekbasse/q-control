@@ -5,8 +5,13 @@
 -- @license GNU GENERAL PUBLIC LICENSE, Version 2 or greater
 --
 
-drop index qc_package_parameter_map_param_name;
-drop index qc_package_parameter_map_qc_id;
+
+drop index qc_package_instance_map_pkg_id_key_idx;
+
+DROP TABLE qc_package_instance_map;
+
+drop index qc_package_parameter_map_param_name_idx;
+drop index qc_package_parameter_map_qc_id_idx;
 
 DROP TABLE qc_package_parameter_map;
 
