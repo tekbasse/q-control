@@ -1,0 +1,81 @@
+set title "Q-Control privilege map"
+set context [list $title]
+
+qc_pkg_admin_required
+
+set content ""
+set instance_id [qc_set_instance_id]
+
+# Identify and test full range of parameters
+set properties_list [qc_property_list $instance_id]
+set properties_count [llength $properties_list]
+
+set roles_lists [qc_roles $instance_id]
+set roles_list [list ]
+foreach role_list $roles_lists {
+    set role [lindex $role_list 0]
+    lappend roles_list $role
+    set role_id [qc_role_id_of_label $role $instance_id]
+    set role_id_arr(${role}) $role_id
+}
+# keep namespace clean to help prevent bugs in test code
+unset role_id
+unset role
+unset roles_lists
+
+# create a lookup truth table of permissions
+# hf_properties_list vs roles_list
+# with value being 1 read, 2 create, 4 write, 8 delete, 16 admin
+# which results in these values, based on existing assignments:
+# 0,1,3,7,15,31
+# with this table, if user has same role, customer_id, 
+# then pass using bit math: table value & privilege_request_value
+# 
+# initialize table
+append content "<table>"
+append content "<th>#q-control.role#</th><th>#q-control.property#</th><th>#q-control.privilege#</th>\n"
+set role_prev ""
+foreach role $roles_list {
+    # at_id = property
+    foreach at_id $properties_list {
+        # 0 is default, no privilege
+        #                    set priv_arr(${role},${at_id})  0
+        set property_id [qc_property_id $at_id $instance_id]
+        set role_id [qc_role_id_of_label $role $instance_id]
+        set priv_list [qc_privileges_of_prop_role $property_id $role_id ]
+        set priv_val 0
+        foreach priv $priv_list {
+            switch -exact -- $priv {
+                read {
+                    incr priv_val 1
+                }
+                create {
+                    incr priv_val 2
+                }
+                write {
+                    incr priv_val 4
+                }
+                delete {
+                    incr priv_val 8
+                }
+                admin {
+                    incr priv_val 16
+                }
+            }
+        }
+        if { $priv_val > 0 } {
+            #append content "${role},${at_id} ${priv_val} \ <br>"
+            if { $role eq $role_prev } {
+                append content "<tr><td>&nbsp;</td><td>${at_id}</td><td>[join $priv_list ","]</td></tr>"
+            } else {
+                append content "<tr><td>${role}</td><td>${at_id}</td><td>[join $priv_list ","]</td></tr>"
+            }
+            set role_prev $role
+        }
+    }
+
+
+
+}
+
+append content "</table>"
