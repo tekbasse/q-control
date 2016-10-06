@@ -61,13 +61,13 @@ ad_proc -private qc_property_init {
         # properties do not exist yet.
         set p_d_lists \
             [list \
+                 [list org_accounts "Org Accounts"] \
                  [list org_properties "Org Properties"] \
-                 [list project_properties "Project Properties"] \
+                 [list permissions_privileges "Permissions privileges"] \
                  [list permissions_properties "Permissions properties"] \
                  [list permissions_roles "Permissions roles"] \
-                 [list permissions_privileges "Permissions privileges"] \
-                 [list org_accounts "Org Accounts"] \
                  [list project_accounts "Project Accounts"] \
+                 [list project_properties "Project Properties"] \
                  [list published "World viewable"] ]
         foreach def_prop_list $p_d_lists {
             set property_id [lindex $def_prop_list 0]
@@ -103,10 +103,11 @@ ad_proc -private qc_privilege_init {
         set privs_larr(staff) [list "read"]
         
         set division_types_list [list org project content]
-        set props_larr(project) [list propject_properties project_accounts published]
         set props_larr(org) [list org_properties org_accounts project_properties project_accounts published]
+        set props_larr(project) [list project_properties project_accounts published]
         set props_larr(content) [list published]
-        # perimissions_* are for special cases where tech admins need access to set special case permissions.
+
+        # perimissions_* are for special cases where admins need access to set special case permissions.
         set roles_lists [qc_roles $instance_id 1]
         set props_lists [qc_properties $instance_id 1]
         foreach role_list $roles_lists {
@@ -123,18 +124,19 @@ ad_proc -private qc_privilege_init {
                 # Privileges are base on 
                 #     $privs_larr($role) and props_larr(property_id)
                 # For example, 
-                #     $privs_larr(manager) = list read write
-                #     $props_larr(project) = admin_contact_record non_assets published
-                
-                if { [lsearch $props_larr($division) $property_id ] > -1 } {
-                    # This division has privileges.
-                    # Add privileges for the role_id
-                    if { $role_level ne "" } {
-                        foreach priv $privs_larr($role_level) {
-                            qc_property_role_privilege_map_create $property_id $role_id $priv $instance_id
+                #     $privs_larr(manager) = list read write create
+                #     $props_larr(project) = project_
+                if { $division in $division_types_list } {
+                    if { [lsearch $props_larr(${division}) $property_id ] > -1 } {
+                        # This division has privileges.
+                        # Add privileges for the role_id
+                        if { $role_level ne "" } {
+                            foreach priv $privs_larr(${role_level}) {
+                                qc_property_role_privilege_map_create $property_id $role_id $priv $instance_id
+                            }
+                        } else {
+                            ns_log Notice "qc_privilege_init.138: No role_level (admin/manager/staff) for role_id '${role_id}' role_label '${role_label}'"
                         }
-                    } else {
-                        ns_log Notice "q-control/tcl/q-control-init.tcl.130: No role_level (admin/manager/staff) for role_id '${role_id}' role_label '${role_label}'"
                     }
                 }
             }

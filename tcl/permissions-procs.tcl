@@ -404,6 +404,7 @@ ad_proc -private qc_role_create {
                     (instance_id, label, title, description)
                     values (:instance_id, :label, :title, :description) }
                 set return_val 1
+                ns_log Notice "qc_role_create.407: role '${label}' created for instance_id '${instance_id}'."
             }
         }
     } else {
