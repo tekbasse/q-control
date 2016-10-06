@@ -2,6 +2,8 @@
 <message_catalog package_key="q-control" locale="en_US" charset="ISO-8859-1">
   <msg key="instance_id">Instance id</msg>
   <msg key="instance_id_def">An OpenACS package identifier ie object_id of a specific package instance</msg>
+  <msg key="privilege">Privilege</msg>
+  <msg key="privilege_def">Rights assigned to a role for action on a type of property. Usually read, write, create, delete, and/or admin.</msg>
   <msg key="property">Property</msg>
   <msg key="property_def">Something used in an activity. A class of objects or object.</msg>
   <msg key="qal_contact_id">Contact id</msg>

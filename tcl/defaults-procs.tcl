@@ -1,4 +1,4 @@
-# hosting-farm/tcl/hosting-farm-defaults-procs.tcl
+# q-control/tcl/q-control-defaults-procs.tcl
 ad_library {
 
     library that provides defaults for Hosting Farm
@@ -6,17 +6,17 @@ ad_library {
     @Copyright (c) 2016 Benjamin Brink
     @license GNU General Public License 2,
     @see project home or http://www.gnu.org/licenses/gpl-2.0.html
-    @project home: http://github.com/tekbasse/hosting-farm
+    @project home: http://github.com/tekbasse/q-control
     @address: po box 20, Marylhurst, OR 97036-0020 usa
     @email: tekbasse@yahoo.com
     
-
+}
 
 
 ad_proc -private qc_roles_init {
     instance_id
 } {
-    Initialize roles for a hosting-farm instance.
+    Initialize roles for a q-control instance.
 } {
     # role is <division>_<role_level> where role_level are privileges.
     # r_d_lists is abbrev for role_defaults_list
@@ -52,12 +52,8 @@ ad_proc -private qc_roles_init {
 ad_proc -private qc_property_init {
     instance_id
 } {
-    Initialize permissions properties for a hosting-farm instance
+    Initialize permissions properties for a q-control instance
 } {
-    # ns could be an asset or attribute
-    # For now, ns is an attribute (ie requires an asset besides the ns),
-    # but maybe we give it special permissions 
-    # or other asset-like qualities for now.
     # p_d_lists is abbrev for props_defaults_lists
     set property_list [qc_property_list $instance_id]
     if { [llength $property_list] == 0 } {
@@ -86,7 +82,7 @@ ad_proc -private qc_property_init {
 ad_proc -private qc_privilege_init {
     instance_id
 } {
-    Initialize permissions privileges for a hosting-farm instance
+    Initialize permissions privileges for a q-control instance
 } {
     # This is the first run of the first instance. 
     # In general:
@@ -138,7 +134,7 @@ ad_proc -private qc_privilege_init {
                             qc_property_role_privilege_map_create $property_id $role_id $priv $instance_id
                         }
                     } else {
-                        ns_log Notice "hosting-farm/tcl/hosting-farm-init.tcl.130: No role_level (admin/manager/staff) for role_id '${role_id}' role_label '${role_label}'"
+                        ns_log Notice "q-control/tcl/q-control-init.tcl.130: No role_level (admin/manager/staff) for role_id '${role_id}' role_label '${role_label}'"
                     }
                 }
             }
