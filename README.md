@@ -2,7 +2,7 @@ Q-Control
 =======
 
 The lastest version of the code is available at the site:
- http://github.com/dcpm/q-control
+ http://github.com/xdcpm/q-control
 
 Development version is at:
  http://github.com/tekbasse/q-control
@@ -58,6 +58,11 @@ Users must have OpenACS read privilege to invoke additional Q-Control approvals.
 
 Users with OpenACS Package Admin privilege have all approvals in context.
 
+Low learning-curve compared to customizing OpenACS' group permissions 
+of party/person/group and how permissions change based on 
+the types of relations between groups and the types of memberships of user 
+relations in groups as described at: 
+ http://openacs.org/doc/permissions-tediously-explained.html
 
 installation
 ------------
