@@ -13,8 +13,12 @@
         <owner url="mailto:tekbasse@yahoo.com">Benjamin Brink</owner>
         <owner url="http://openacs.org">OpenACS community</owner>
         <summary>Implements a role-based access control system.</summary>
+        <release-date>2017-01-09</release-date>
         <description format="text/plain">With this role-based access control system, users are assigned roles, roles are assigned privileges, and properties are assigned to an independent group_id. Apps that depend on this package create tests similar to OpenACS permissions system to determine if user has read, create, write, delete, or admin rights per property (or property class) tested.</description>
+        <license>Gnu GPL version 2</license>
+        <license_url>https://www.gnu.org/licenses/old-licenses/gpl-2.0.html</license_url>
         <maturity>0</maturity>
+        <package_instance_name>Q-Control</package_instance_name>
 
         <provides url="q-control" version="0.020"/>
 
