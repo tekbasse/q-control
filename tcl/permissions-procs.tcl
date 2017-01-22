@@ -600,19 +600,26 @@ ad_proc -public qc_permission_p {
     {instance_id ""} 
 } {
     Checks for permission  in place of permission::permission_p within a package configured to use this.
-
+<br/>
     Permissions works like this: 
-    
+<br/>
     Each asset (think object) is associated with a property type ie a type of object (not necessarily an object_id)
+<br/>
     Each asset_id is associated with a contact (contact_id).
+<br/>
     A privilege is the same as in permission::permission_p (read/write/create/admin).
+<br/>
     Default property_labels consist of:
+<br/>
     assets, 
+    non_assets,
     permissions_roles, 
     permissions_privileges, 
     permissions_properties, and
     published.
+<br/>
     Each role is assigned privileges on property_labels. Default privilege is none.
+<br/>
     Default roles consist of:
     technical_contact,
     technical_staff,
@@ -621,7 +628,9 @@ ad_proc -public qc_permission_p {
     primary_contact,
     primary_staff, and
     site_developer.
+<br/>
     Each property is associated with a contact, and each user assigned roles.
+<br/>
     This proc confirms that one of roles assigned to user_id can do privilege on contact's property_label.
 } {
     if { $instance_id eq "" } {
@@ -663,7 +672,11 @@ ad_proc -public qc_permission_p {
             if { $property_id_exists_p } {
                 # ns_log Notice "qc_permission_p.591: user_id ${user_id} contact_id ${contact_id} property_id '${property_id}' privilege '${privilege}' instance_id '${instance_id}'"
                 # conform at least one of the roles has privilege on property_id
-                set allowed_p [db_0or1row qc_property_role_privilege_ck "select privilege from qc_property_role_privilege_map where instance_id=:instance_id and property_id=:property_id and privilege=:privilege and role_id in ([template::util::tcl_to_sql_list $role_ids_list]) limit 1"]
+                set allowed_p [db_0or1row qc_property_role_privilege_ck "select privilege from qc_property_role_privilege_map \
+ where instance_id=:instance_id \
+ and property_id=:property_id \
+ and privilege=:privilege \
+ and role_id in ([template::util::tcl_to_sql_list $role_ids_list]) limit 1"]
             }
         } 
     } else {
