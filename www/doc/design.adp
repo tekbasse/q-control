@@ -27,6 +27,10 @@ so that package admin access for any particular package is always enforced with 
 </li><li>
 Avoid name collisions between package parameters.
 Verify that parameter names are unique for packages sharing q-control zone (subsite_id or package_id).
+</li><li>
+For external contacts, contact_id is derived from accounts-general package using qal_contact_id and is a unique OpenACS object_id.
+</li><li>
+For internal (entity/owner), contact_id is the package_id returned by qc_set_instance_id, which is also a unique OpenACS object_id.
 </li>
 </ol>
 </p>
