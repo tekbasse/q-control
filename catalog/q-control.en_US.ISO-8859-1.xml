@@ -12,4 +12,6 @@
   <msg key="qal_product_id_def">A product's identifier</msg>
   <msg key="role">Role</msg>
   <msg key="role_def">An activity assigned to a user.</msg>
+  <msg key="You_have_not_been_assigned_to_a_contact">You do not represent a contact.</msg>
+  <msg key="You_don_t_have_permission">You don't have permission.</msg>
 </message_catalog>
