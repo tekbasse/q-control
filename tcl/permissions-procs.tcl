@@ -315,7 +315,7 @@ ad_proc -private qc_roles_of_user {
 }
 
 
-ad_proc -private qc_user_role_add {
+ad_proc -public qc_user_role_add {
     contact_id
     user_id
     role_id
