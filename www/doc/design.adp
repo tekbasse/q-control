@@ -34,3 +34,23 @@ For internal (entity/owner), contact_id is the package_id returned by qc_set_ins
 </li>
 </ol>
 </p>
+<h3>Notes for integrating q-control into openacs permissions generally</h3>
+<pre>
+Each role is a group, so create a group_type "acs_qc_roles" for each role  using group::new group_type
+
+Make each asset (type of object)  an acs_object, so create an object_id of a new acs_object_t\
+ype                                                                                                           
+
+Now permissions can be assigned by group to an object using permisions UI.                                   
+
+ref:
+
+group_type::new pretty_name pretty_plural
+group::new group_type
+
+How to create an oacs_object_type?
+see http://openacs.org/doc/object-system-design                                                              
+Then *maybe* add instance_id to context of object (or not. Test to see if this is useful or necessary):
+acs_object::set_context_id -object_id object_id -context_id context_id
+where context_id is instance_id
+</pre>
