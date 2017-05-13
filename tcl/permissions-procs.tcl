@@ -400,10 +400,24 @@ ad_proc -private qc_role_create {
             } else {
                 #set exists_p 0
                 # create role
-                db_dml qc_role_create {insert into qc_role
+                db_transaction {
+                    db_dml qc_role_create {insert into qc_role
                     (instance_id, label, title, description)
-                    values (:instance_id, :label, :title, :description) }
-                set return_val 1
+                        values (:instance_id, :label, :title, :description) }
+                    set return_val 1
+                    ##code This proc should include a plural title..
+                    set title_plural $title
+                    set description [lindex $def_role_list 2]
+                    qc_role_create "" $label $title $description $instance_id
+                    set group_label "qc_"
+                    append group_label $label
+                    set group_type_exists_p [db_0or1row qal_select_qc_grp_role { 
+                        select group_type from group_types where group_type=:group_label } ]
+                    if { !$group_type_exists_p } {
+                        group_type::new -group_type $group_label -supertype group $title $title_plural
+                    }
+
+                }
                 ns_log Notice "qc_role_create.407: role '${label}' created for instance_id '${instance_id}'."
             }
         }
