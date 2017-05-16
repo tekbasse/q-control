@@ -80,6 +80,40 @@
 CREATE SEQUENCE qc_permissions_id_seq start 100;
 SELECT nextval ('qc_permissions_id_seq');
 
+-- A role is an Openacs group of a q-control or other package defined group type
+-- THis commented out code consists of notes for adding the q-control permissions paradigm
+-- for use on the rest of an OpenACS site.
+
+-- These are just notes. Really, there should be a different acs_object_type ie for each qc_role
+-- because in qc, a role represents a group type, not a group.
+-- CREATE TABLE qc_role_object_id_map (
+--        -- role is a group of qc-control or other package group type
+--        object_id integer unique not null,
+--        instance_id integer,
+--        -- For now, role_id is the same as object_id. See qc_role table.
+--        -- acs_object_type__create_type needs an external table.
+--        -- A role group contains users as members.
+--        -- This helps to identify users assigned roles in a subgroup 
+--        role_id integer,
+-- );       
+-- 
+-- create index qc_role_object_id_map_contact_id_idx on qc_role_object_id_map(contact_id);
+-- create index qc_role_object_id_map_instance_id_idx on qc_role_object_id_map(instance_id);
+-- 
+-- select acs_object_type__create_type(
+--    'qc_role',                -- content_type
+--    'qc Role',                -- pretty_name 
+--    'qc Roles',               -- pretty_plural
+--    'acs_object',             -- supertype
+--    'qc_role_object_id_map',  -- table_name
+--    'object_id',              -- id_column 
+--    'qc_role',                -- package_name
+--    'f',                      -- abstract_p
+--    NULL,                     -- type_extension_table
+--    NULL                      -- name_method
+-- );
+-- 
+
 
 CREATE TABLE qc_role (
     -- qal_contact_id and user_id distill to a role_id(s) list
