@@ -80,8 +80,44 @@
 CREATE SEQUENCE qc_permissions_id_seq start 100;
 SELECT nextval ('qc_permissions_id_seq');
 
--- A role is an Openacs group of a q-control or other package defined group type
--- THis commented out code consists of notes for adding the q-control permissions paradigm
+-- A qc role is an Openacs group type and set of groups, one for each party.
+-- An OpenACS party can be an instance_id or (or contact_id in the case of accounts-ledger).
+-- OpenACS does not have a direct analog to qc role.
+
+-- One approach to simulate role is to create a role group for each individual role 
+-- with each individual party_id.
+-- Stated differently, in qc when a role is created, 
+-- a separate role is created for each contact_id automatically.
+-- For example, suppose there are three contacts Acme, Best, and Cheesy. 
+-- If a role tech_admin is created,
+-- the role exists for each party (but no assignments of users are made to any role).
+-- The exception is the primary contact which has default admin permissions for 
+-- default roles.
+
+-- Whereas in OpenACS permissions, using the approach of a role is a group,
+-- each role for each contact must be created separately.
+-- For example, suppose there are three contacts Acme, Best, and Cheesy.
+-- If a role tech_admin is created for Acme, 
+-- no tech_admin role is automatically created for the other contacts Best and Cheesy.
+
+-- A qc property (or asset_type) is an acs_object_type and set of objects one for each party.
+-- OpenACS does not have a direct analog to qc property. 
+
+-- The closest existing analog would be subsites. 
+-- Imagine if every party has a primary subsite. 
+-- And, imagine if every property were a subsite of a party's subsite. 
+-- A property subsite 'assets' for example would automatically be created for each party's primary subsite.  
+-- Permissions could then be assigned for one or more role groups to read/write/create/delete/admin
+-- a party's property subsite.
+-- And users could then be assigned membership to each role group (ie qc role).
+--
+-- One approach is to create acs_object_types for each qc property 
+-- and then create these acs_object_types for each party.
+
+
+
+
+-- This commented out code consists of notes for adding the q-control permissions paradigm
 -- for use on the rest of an OpenACS site.
 
 -- These are just notes. Really, there should be a different acs_object_type ie for each qc_role
