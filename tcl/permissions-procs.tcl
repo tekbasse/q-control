@@ -646,6 +646,8 @@ ad_proc -public qc_permission_p {
     Each property is associated with a contact, and each user assigned roles.
 <br/>
     This proc confirms that one of roles assigned to user_id can do privilege on contact's property_label.
+
+    @see qc_user_role_add
 } {
     if { $instance_id eq "" } {
         # set instance_id package_id
@@ -814,6 +816,7 @@ ad_proc -public qc_contact_ids_for_user {
     @param role_id_list If nonempty, scopes to these roles ( qc_role.id) See qc_roles_of_prop_priv
     @return Returns qal_contact_id numbers in a list.
 
+    @see qc_user_role_add
 } {
     if { $instance_id eq "" } {
         # set instance_id package_id
@@ -833,6 +836,8 @@ ad_proc -public qc_roles_of_user_contact_id {
     instance_id 
 } {
     Returns a list of role_id's that a user of contact_id has been assigned, or empty list if none found.
+
+    @see qc_user_role_add
 } {
     set role_ids_list [db_list qc_user_roles_for_cust_get {select qc_role_id from qc_user_roles_map where instance_id=:instance_id and qal_contact_id=:contact_id and user_id=:user_id}]
     return $role_ids_list
@@ -842,7 +847,10 @@ ad_proc -public qc_user_ids_of_contact_id {
     contact_id
     role_id_list
 } {
-    Returns user_ids associated with contact_id, and if role_id_list is nonempty, scopes to these role_ids (qc_role.id). See qc_roles_of_prop_priv. 
+    Returns user_ids associated with contact_id, and if role_id_list is nonempty, scopes to these role_ids (qc_role.id). 
+
+    @see qc_roles_of_prop_priv
+    @see qc_user_role_add
 } {
     upvar 1 instance_id u_instance_id
     if { [ns_conn isconnected] } {
