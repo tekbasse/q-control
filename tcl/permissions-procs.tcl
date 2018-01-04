@@ -407,7 +407,7 @@ ad_proc -private qc_role_create {
                     set return_val 1
                     ##code This proc should include a plural title..
                     set title_plural $title
-                    set description [lindex $def_role_list 2]
+
                     qc_role_create "" $label $title $description $instance_id
                     set group_label "qc_"
                     append group_label $label
