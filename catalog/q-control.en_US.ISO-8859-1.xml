@@ -1,17 +1,44 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <message_catalog package_key="q-control" locale="en_US" charset="ISO-8859-1">
+  <msg key="You_don_t_have_permission">You don't have permission.</msg>
+  <msg key="You_have_not_been_assigned_to_a_contact">You do not represent a contact.</msg>
+  <msg key="content_creator">Content Creator</msg>
+  <msg key="content_creator_desc">Public relations, social networking etc.</msg>
+  <msg key="content_editor">Content Editor</msg>
+  <msg key="content_editor_desc">Public relations, social networking etc.</msg>
   <msg key="instance_id">Instance id</msg>
   <msg key="instance_id_def">An OpenACS package identifier ie object_id of a specific package instance</msg>
+  <msg key="org_accounts">Org Accounts</msg>
+  <msg key="org_admin">Org Admin</msg>
+  <msg key="org_admin_desc">Primary administrator</msg>
+  <msg key="org_manager">Org Manager</msg>
+  <msg key="org_manager_desc">Primary manager</msg>
+  <msg key="org_properties">Org Properties</msg>
+  <msg key="org_staff">Org staff</msg>
+  <msg key="org_staff_desc">Org monitor</msg>
+  <msg key="permissions">Permissions</msg>
+  <msg key="permissions_privileges">Permissions privileges</msg>
+  <msg key="permissions_properties">Permissions properties</msg>
+  <msg key="permissions_roles">Permissions roles</msg>
   <msg key="privilege">Privilege</msg>
   <msg key="privilege_def">Rights assigned to a role for action on a type of property. Usually read, write, create, delete, and/or admin.</msg>
+  <msg key="privileges">Privileges</msg>
+  <msg key="project_accounts">Project Accounts</msg>
+  <msg key="project_admin">Project Admin</msg>
+  <msg key="project_admin_desc">Primary project adminstrator</msg>
+  <msg key="project_manager">Project Manager</msg>
+  <msg key="project_manager_desc">Oversees daily project operations</msg>
+  <msg key="project_properties">Project Properties</msg>
+  <msg key="project_staff">Project Staff</msg>
+  <msg key="project_staff_desc">Monitors project, bookkeeping etc.</msg>
   <msg key="property">Property</msg>
   <msg key="property_def">Something used in an activity. A class of objects or object.</msg>
+  <msg key="published">World viewable</msg>
   <msg key="qal_contact_id">Contact id</msg>
   <msg key="qal_contact_id_def">A contact's identifier (integer)</msg>
   <msg key="qal_product_id">Product id</msg>
   <msg key="qal_product_id_def">A product's identifier</msg>
   <msg key="role">Role</msg>
   <msg key="role_def">An activity assigned to a user.</msg>
-  <msg key="You_have_not_been_assigned_to_a_contact">You do not represent a contact.</msg>
-  <msg key="You_don_t_have_permission">You don't have permission.</msg>
+  <msg key="roles">Roles</msg>
 </message_catalog>

@@ -1,4 +1,4 @@
-# q-control/tcl/q-control-defaults-procs.tcl
+# q-control/tcl/defaults-procs.tcl
 ad_library {
 
     library that provides defaults for Hosting Farm
@@ -96,6 +96,7 @@ ad_proc -private qc_privilege_init {
     if { !$exists_p } {
         ns_log Notice "qc_privilege_init: adding privilege maps for instance_id '${instance_id}'"
         # only package system admin has delete privilege
+        # locale keys are #acs-subsite.read# for example
         set privs_larr(admin) [list "create" "read" "write" "admin"]
         set privs_larr(manager) [list "create" "read" "write"]
         set privs_larr(editor) [list "read" "write"]
