@@ -23,26 +23,27 @@ ad_proc -private qc_roles_init {
     set roles_list [qc_roles $instance_id ]
     if { [llength $roles_list ] == 0 } { 
         ns_log Notice "qc_roles_init: adding roles for instance_id '${instance_id}'"
-        set r_d_lists \
-            [list \
-                 [list org_admin "Org Admin" "Primary administrator"] \
-                 [list org_manager "Org Manager" "Primary manager"] \
-                 [list org_staff "Org Staff" "Org monitor"] \
-                 [list project_admin "Project Admin" "Primary project administrator"] \
-                 [list project_manager "Project Manager" "Oversees daily project operations"] \
-                 [list project_staff "Project Staff" "Monitors project, bookkeeping etc."] \
-                 [list content_creator "Content Creator" "Public relations, social networking etc."] \
-                 [list content_editor "Content Editor" "Public relations, social networking etc."] ]
+        set r_d_lists [list ]
+        set r_keys_list [list org_admin \
+                           org_manager \
+                           org_staff \
+                           project_admin \
+                           project_manager \
+                           project_staff \
+                           content_creator \
+                           content_editor ]
         
         # admin to have admin permissions, 
         # manager to have read/write permissions, 
         # staff to have read permissions
-        foreach def_role_list $r_d_lists {
+        foreach label $r_keys_list {
+            set title "#contact-support."
+            append title $label "#"
+            set description $title
+            append description $label "_desc#"
             # No need for instance_id since these are system defaults
-            set label [lindex $def_role_list 0]
-            set title [lindex $def_role_list 1]
-            set description [lindex $def_role_list 2]
             qc_role_create "" $label $title $description $instance_id
+
         }
     }
     return 1
