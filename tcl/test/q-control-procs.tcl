@@ -4,7 +4,7 @@ ad_library {
 }
 
 aa_register_case -cats {api smoke} qc_hf_permission_check {
-    Test qc_permissions_p proc for all cases
+    Test qc_permissions_p proc for all cases. Requires hosting-farm package to test. Set EmailRegistrationConfirmationToUserP to '0', to prevent any email notification errors when generating test user accounts.
 } {
     aa_run_with_teardown \
         -test_code {
@@ -15,10 +15,11 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
             # Some tests will fail (predictably) in a hardened system
 
             set instance_id [ad_conn package_id]
-            hf_roles_init $instance_id
-            hf_property_init $instance_id
-            hf_privilege_init $instance_id
-            hf_asset_type_id_init $instance_id
+            qc_roles_init $instance_id
+            qc_property_init $instance_id
+            qc_privilege_init $instance_id
+            #hf_asset_type_id_init $instance_id
+
             
             # Identify and test full range of parameters
             set asset_type_ids_list [qc_property_list $instance_id]
@@ -135,7 +136,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
 
             ns_log Notice "tcl/test/q-control-procs.tcl.60: roles_list '${roles_list}'"
             ns_log Notice "tcl/test/q-control-procs.tcl.61: rpn_list '${rpn_list}'"
-            ns_log Notice "tcl/test/q-control-procs.tcl.61: asset_type_ids_list '${asset_type_ids_list}'"
+            ns_log Notice "tcl/test/q-control-procs.tcl.62: asset_type_ids_list '${asset_type_ids_list}'"
 
             # Case 1: A user with sysadmin rights and not customer
             set sysowner_email [ad_system_owner]
@@ -153,7 +154,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
             array set u_site_arr [auth::create_user -first_names [join [qal_namelur] " "] -last_name [qal_namelur 1] -email $email ]
             if { $u_site_arr(creation_status) ne "ok" } {
                 # Could not create user
-                ns_log Warning "Could not create test user u_site_arr=[array get u_site_arr]"
+                ns_log Warning "tcl/test/q-control-procs.tcl.157: Could not create test user u_site_arr=[array get u_site_arr]"
             } else {
                 set site_user_id $u_site_arr(user_id)
                 permission::grant -party_id $site_user_id -object_id $instance_id -privilege read
@@ -166,7 +167,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
             array set u_mnp_arr [auth::create_user -first_names [join [qal_namelur] " "] -last_name [qal_namelur 1] -email $email ]
             if { $u_mnp_arr(creation_status) ne "ok" } {
                 # Could not create user
-                ns_log Warning "Could not create test user u_mnp_arr=[array get u_mnp_arr]"
+                ns_log Warning "tcl/test/q-control-procs.tcl.170: Could not create test user u_mnp_arr=[array get u_mnp_arr]"
             } else {
                 set mnp_user_id $u_mnp_arr(user_id)
                 permission::grant -party_id $mnp_user_id -object_id $instance_id -privilege read
@@ -188,7 +189,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
                 array set $arr1_name [auth::create_user -first_names [join [qal_namelur] " "] -last_name [qal_namelur 1] -email $email ]
                 if { [lindex [array get $arr1_name creation_status] 1] ne "ok" } {
                     # Could not create user
-                    ns_log Warning "Could not create test user u_${role}_arr=[array get u_${role}_arr]"
+                    ns_log Warning "tcl/test/q-control-procs.tcl.192: Could not create test user u_${role}_arr=[array get u_${role}_arr]"
                 } else {
                     set uid [set u1_${role}_arr(user_id) ]
                     set c4ui(${role}) $uid
@@ -214,7 +215,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
                 array set $arrm_name [auth::create_user -first_names [join [qal_namelur] " "] -last_name [qal_namelur 1] -email $email ]
                 if { [lindex [array get $arrm_name creation_status] 1] ne "ok" } {
                     # Could not create user
-                    ns_log Warning "Could not create test user m_${role}_arr=[array get m_${role}_arr]"
+                    ns_log Warning "tcl/test/q-control-procs.tcl.218: Could not create test user m_${role}_arr=[array get m_${role}_arr]"
                 } else {
                     set uid [set m_${role}_arr(user_id) ]
                     lappend c5ui_arr(${role}) $uid
