@@ -37,7 +37,7 @@ ad_proc -private qc_roles_init {
         # manager to have read/write permissions, 
         # staff to have read permissions
         foreach label $r_keys_list {
-            set title "#contact-support."
+            set title "#q-control."
             append title $label "#"
             set description $title
             append description $label "_desc#"
@@ -60,19 +60,18 @@ ad_proc -private qc_property_init {
     if { [llength $property_list] == 0 } {
         ns_log Notice "qc_property_init: adding properties for instance_id '${instance_id}'"
         # properties do not exist yet.
-        set p_d_lists \
-            [list \
-                 [list org_accounts "Org Accounts"] \
-                 [list org_properties "Org Properties"] \
-                 [list permissions_privileges "Permissions privileges"] \
-                 [list permissions_properties "Permissions properties"] \
-                 [list permissions_roles "Permissions roles"] \
-                 [list project_accounts "Project Accounts"] \
-                 [list project_properties "Project Properties"] \
-                 [list published "World viewable"] ]
-        foreach def_prop_list $p_d_lists {
-            set property_id [lindex $def_prop_list 0]
-            set title [lindex $def_prop_list 1]
+        set p_d_lists [list ]
+        set p_keys_list [list org_accounts \
+                             org_properties \
+                             permissions_privileges \
+                             permissions_properties \
+                             permissions_roles \
+                             project_accounts \
+                             project_properties \
+                             published ]
+        foreach property_id $p_keys_list {
+            set title "#q-control."
+            append title $property_id "#"
             qc_property_create $property_id $title "" $instance_id
         }
     }
