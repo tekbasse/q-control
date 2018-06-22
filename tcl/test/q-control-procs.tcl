@@ -46,9 +46,12 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
 
             # create a lookup truth table of permissions
             # qc_asset_type_ids_list vs roles_list
-            # with value being 1 read, 2 create, 4 write, 8 delete, 16 admin
+            # with value being
+            # 0 none 1 read, 2 create, 4 write, 8 delete, 16 admin
             # which results in these values, based on existing assignments:
             # 0,1,3,7,15,31
+            # read + write = 5
+            # read + create + write = 7
             # with this table, if user has same role, customer_id, 
             # then pass using bit math: table value & privilege_request_value
             # 
@@ -62,7 +65,37 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
             }
             # Manually add each entry. This is necessary to avoid duplicating 
             # a code/logic error.
+            ##code  revise rp_map_arr to use q-control defaults instead of
+            # values from hosting-farm package
+            # Keeping the hosting-farm package ones as well. Why not?? 
+
             array set rp_map_arr [list \
+                                      org_admin,org_accounts 31 \
+                                      org_admin,org_properties 31 \
+                                      org_admin,project_accounts 31 \
+                                      org_admin,project_properties 31 \
+                                      org_admin,published 31 \
+                                      org_manager,org_accounts 7 \
+                                      org_manager,org_properties 7 \
+                                      org_manager,project_accounts 7 \
+                                      org_manager,project_properties 7 \
+                                      org_manager,published 7 \
+                                      org_staff,org_accounts 1 \
+                                      org_staff,org_properties 1 \
+                                      org_staff,project_accounts 1 \
+                                      org_staff,project_properties 1 \
+                                      org_staff,published 1 \
+                                      project_admin,project_accounts 31 \
+                                      project_admin,project_properties 31 \
+                                      project_admin,published 31 \
+                                      project_manager,project_accounts 7 \
+                                      project_manager,project_properties 7 \
+                                      project_manager,published 7 \
+                                      project_staff,project_accounts 1 \
+                                      project_staff,project_properties 1 \
+                                      project_staff,published 1 \
+                                      content_creator,published 3 \
+                                      content_editor,published 5 \
                                       site_developer,non_assets 7   \
                                       site_developer,published 7   \
                                       billing_staff,admin_contact_record 1   \
@@ -195,6 +228,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
                     set c4ui(${role}) $uid
                     set c4urole(${uid}) $role
                     lappend c4_uid_list $uid
+                    ns_log Notice "tcl/test/q-control-procs.tcl.198: c4ui(${role}) '${uid}' c4urole(${uid}) '${role}'"
                     permission::grant -party_id $uid -object_id $instance_id -privilege read
                 }
             }
@@ -343,7 +377,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
                         if { $rpn eq "read" && $at_id eq "published" } {
                             set rp_allowed_p 1
                         }
-                        # test privilege against role when c4uid = crui(role), otherwise 0
+                        # test privilege against role when c4uid = crui(role), otherwise 
                         aa_equals "C4 1role/uid uid:${c4uid} ${role} ${at_id} ${rpn}" $hp_allowed_p $rp_allowed_p
                     }
                 }
@@ -413,7 +447,7 @@ ns_log Notice "tcl/test/q-control-procs.tcl.397"
                         set rp_allowed_p 0
                         #ns_log Notice "tcl/test/q-control-procs.tcl.408 at_id $at_id rpn $rpn"
                         foreach role $c5uwr_larr(${c5uid}) {
-                            if { [expr { $rpv_arr(${rpn}) & $priv_arr(${role},${at_id}) } ] > 0 } {
+                            if { [expr { $rpv_arr(${rpn}) && $priv_arr(${role},${at_id}) } ] > 0 } {
                                 set rp_allowed_p 1
                             } 
                         }
