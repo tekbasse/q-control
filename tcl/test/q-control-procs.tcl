@@ -4,7 +4,7 @@ ad_library {
 }
 
 aa_register_case -cats {api smoke} qc_hf_permission_check {
-    Test qc_permissions_p proc for all cases. Requires hosting-farm package to test. Set EmailRegistrationConfirmationToUserP to '0', to prevent any email notification errors when generating test user accounts.
+    Test qc_permissions_p proc for all cases.  Set acs-subsite parameter EmailRegistrationConfirmationToUserP to '0', to prevent any email notification errors when generating test user accounts.
 } {
     aa_run_with_teardown \
         -test_code {
