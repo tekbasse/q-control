@@ -447,7 +447,7 @@ ns_log Notice "tcl/test/q-control-procs.tcl.397"
                         set rp_allowed_p 0
                         #ns_log Notice "tcl/test/q-control-procs.tcl.408 at_id $at_id rpn $rpn"
                         foreach role $c5uwr_larr(${c5uid}) {
-                            if { [expr { $rpv_arr(${rpn}) && $priv_arr(${role},${at_id}) } ] > 0 } {
+                            if { [expr { $rpv_arr(${rpn}) & $priv_arr(${role},${at_id}) } ] > 0 } {
                                 set rp_allowed_p 1
                             } 
                         }
