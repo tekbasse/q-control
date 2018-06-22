@@ -261,7 +261,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
             set customer_id 5
             set roles_list_len_1 [llength $roles_list]
             incr roles_list_len_1 -1
-            # c5uwr_larr = users with role, each key contains list of user_ids assigned role.
+            # c5uwr_larr = users with role, each uid key contains list of roles assigned to user uid.
             foreach role $roles_list {
                 set uid $c5ui_arr(${role})
                 # make sure every role is assigned to a user
@@ -420,21 +420,24 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
             # Case 6: Case 5 with some random role deletes, so that only one user per role, but maybe differnt user than c5..
             set customer_id 5
             foreach c5cuid $c5_uid_list {
+                # t_list is role_ids assigned to user of $c5uid uid
                 set t_list $c5uwr_larr(${c5uid})
                 set t_len [llength $t_list]
                 while { $t_len > 1 } {
                     incr t_len -1
                     set i [randomRange $t_len]
-                    set role [lindex $t_list $i]
-                    qc_user_role_delete $customer_id $c5uid $role_id_arr(${role}) $instance_id
-                    ns_log Notice "tcl/test/q-control-procs.tcl.255: delete customer_id ${customer_id} user_id $c5uid role $role"
+                    # t_role_id is a role
+                    set t_role_id [lindex $t_list $i]
+                    qc_user_role_delete $customer_id $c5uid $role_id_arr(${t_role_id}) $instance_id
+                    ##code Need to affect change to rpv_arr and/or priv_arr per case 6 test process.
+                    ns_log Notice "tcl/test/q-control-procs.tcl.432: delete customer_id ${customer_id} user_id $c5uid role $role"
                     set t_list [lreplace $t_list $i $i]
                 }
                 set c5uwr_larr(${c5uid}) $t_list
             }
 
 
-ns_log Notice "tcl/test/q-control-procs.tcl.397"
+            ns_log Notice "tcl/test/q-control-procs.tcl.439"
 
             # Case 6 process
             set customer_id 5
@@ -460,6 +463,7 @@ ns_log Notice "tcl/test/q-control-procs.tcl.397"
                             set rp_allowed_p 1
                         }
                         # test privilege against role when c5uid = crui(role), otherwise 0
+                        
                         aa_equals "C6 c5uid:${c5uid} [join $c5uwr_larr(${c5uid}) ","] ${at_id} ${rpn}" $hp_allowed_p $rp_allowed_p
                     }
                 }
