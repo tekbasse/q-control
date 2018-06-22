@@ -65,7 +65,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
             }
             # Manually add each entry. This is necessary to avoid duplicating 
             # a code/logic error.
-            ##code  revise rp_map_arr to use q-control defaults instead of
+            # Revised rp_map_arr to use q-control defaults instead of
             # values from hosting-farm package
             # Keeping the hosting-farm package ones as well. Why not?? 
 
@@ -419,6 +419,9 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
 
             # Case 6: Case 5 with some random role deletes, so that only one user per role, but maybe differnt user than c5..
             set customer_id 5
+            #This test needs own priv_arr
+            array set priv_c6_arr [array get priv_arr]
+            set priv_c6_names_list [array names priv_arr]
             foreach c5cuid $c5_uid_list {
                 # t_list is role_ids assigned to user of $c5uid uid
                 set t_list $c5uwr_larr(${c5uid})
@@ -427,10 +430,20 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
                     incr t_len -1
                     set i [randomRange $t_len]
                     # t_role_id is a role
-                    set t_role_id [lindex $t_list $i]
-                    qc_user_role_delete $customer_id $c5uid $role_id_arr(${t_role_id}) $instance_id
-                    ##code Need to affect change to rpv_arr and/or priv_arr per case 6 test process.
-                    ns_log Notice "tcl/test/q-control-procs.tcl.432: delete customer_id ${customer_id} user_id $c5uid role $role"
+                    set t_role [lindex $t_list $i]
+                    set role_id $role_id_arr(${t_role})
+                    aa_log "Deleting role '${t_role}' from c6 customer"
+                    qc_user_role_delete $customer_id $c5uid $role_id $instance_id
+                    foreach key [array names priv_c6_arr "${t_role},*"] {
+                        set k_list [split $key ","]
+                        # r = role, p = property
+                        set r [lindex $k_list 0]
+                        set p [lindex $k_list 1]
+                        aa_log "Deleting role '${r}' includes property '${p}' from c6 customer"                                        
+                        set priv_c6_arr(${key}) 0
+                        ns_log Notice "tcl/test/q-control-procs.tcl.430: delete key '${key}'"
+                    }
+                    ns_log Notice "tcl/test/q-control-procs.tcl.432: delete customer_id ${customer_id} user_id $c5uid role $t_role"
                     set t_list [lreplace $t_list $i $i]
                 }
                 set c5uwr_larr(${c5uid}) $t_list
@@ -450,7 +463,7 @@ aa_register_case -cats {api smoke} qc_hf_permission_check {
                         set rp_allowed_p 0
                         #ns_log Notice "tcl/test/q-control-procs.tcl.408 at_id $at_id rpn $rpn"
                         foreach role $c5uwr_larr(${c5uid}) {
-                            if { [expr { $rpv_arr(${rpn}) & $priv_arr(${role},${at_id}) } ] > 0 } {
+                            if { [expr { $rpv_arr(${rpn}) & $priv_c6_arr(${role},${at_id}) } ] > 0 } {
                                 set rp_allowed_p 1
                             } 
                         }
