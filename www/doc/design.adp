@@ -23,20 +23,28 @@ And make practical organizational permissions changes with as little
 as one action regardless of the change being role-based,
 privilege based, subject based, or object based.
 </p><p>
-Here's how RBAC terminology relates to Q-control terms:
+Here's how RBAC terminology relates to Q-control and OpenACS terms:
 </p>
 <ul><li>
-Subject : user_id (Consistent with OpenACS permissions).
+Subject : user_id Consistent with OpenACS permissions, also a type of object_id.
 </li><li>
 Role : role --custom or predefined roles.
 </li><li>
-Permission : Privilege (Consistent with OpenACS permissions: create read write delete admin)
+Permission : Privilege This is consistent with OpenACS permissions: create read write delete and admin.
 </li><li>
-n/a : property_type (Somewhat consistent with OpenACS permissions' object_id or package_id).
+n/a : property_type or type of asset. This is somewhat consistent with OpenACS permissions' object_id or package_id which is a type of object_id.
 </li><li>
-n/a : instance_id (Consistent with OpenACS permission package_id)
-<li></ul>
-
+n/a : instance_id : Same as OpenACS package_id, but can be pointed to another package_id, such as subsite_id. This means Q-Control provides a different set of perimssions just by varying the instance_id.
+</li><li>
+n/a : contact_id This is a group identity that exists external to the website as apposed to ACL group ids that tend to be tied to specific functions. OpenACS uses group_id, a kind of object_id that can be used either way, and yet remains awkward to setup and use by a non-OpenACS admin.
+</li></ul>
+<p>Each role consists of a set of privileges assigned to a property_type.</p>
+<p>User's are assigned one or more roles within an owner contact_id.</p>
+<p>Subsequently, users become members of one or more owner contact_id</p>
+<p>An instance_id is associated with a set of roles, and a set of users assigned to contacts.
+<p>A user needs permission of an owner contact_id to access its instance_id 'zone'.</p>
+<p>Within an owner contact_id, users may be assigned to and provide functions to other contact_ids, where users may have different perimssions for the other contact_ids.  This is the heart of the Q-Control permissions advantage. Administration can occur at the user level for most all perissions.
+</p>
 <h2>Recommendations</h2>
 <p>
 To any package requiring q-control, the following recommendations help to prevent issues
