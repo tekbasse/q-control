@@ -3,10 +3,40 @@
 <property name="context">@context;noquote@</property>
 
 <h1>Design</h1>
-
 <p>
 Q-control is designed to add some user controlled permissions for one or more packages.
 </p>
+<h2>Problem defined</h2>
+<p>An organization may have silos, each with their own personnel.
+Each silo may be a division, a project, a classroom, a client with their own personnel, or some combination. Cominations are sometimes referred to as cross-functional business groups or under matrix management.
+</p>
+<p>These complex permissions may be challenging to setup or represent a high maintainance administrative cost.</p>
+<h2>q-control's solution</h2>
+<p>A typical computer solution is to use
+<a href="https://en.wikipedia.org/wiki/Access_control_list">access control lists</a>, or with OpenACS, to use the built-in super scalable object-based heirarchial permissions system.
+</p><p>
+Q-control's solution is to use a hybrid variant of
+<a href="https://en.wikipedia.org/wiki/Role-based_access_control">role-based_access_control</a> (RBAC)
+and the OpenACS object permissions system to
+more accurately reflect real-world situations.
+And make practical organizational permissions changes with as little
+as one action regardless of the change being role-based,
+privilege based, subject based, or object based.
+</p><p>
+Here's how RBAC terminology relates to Q-control terms:
+</p>
+<ul><li>
+Subject : user_id (Consistent with OpenACS permissions).
+</li><li>
+Role : role --custom or predefined roles.
+</li><li>
+Permission : Privilege (Consistent with OpenACS permissions: create read write delete admin)
+</li><li>
+n/a : property_type (Somewhat consistent with OpenACS permissions' object_id or package_id).
+</li><li>
+n/a : instance_id (Consistent with OpenACS permission package_id)
+<li></ul>
+
 <h2>Recommendations</h2>
 <p>
 To any package requiring q-control, the following recommendations help to prevent issues
@@ -41,7 +71,8 @@ Each role is a group, so create a group_type "acs_qc_roles" for each role  using
 Make each asset (type of object)  an acs_object, so create an object_id of a new acs_object_t\
 ype                                                                                                           
 
-Now permissions can be assigned by group to an object using permisions UI.                                   
+Under development: permissions to be assigned by group to an object using openacs permisions UI.                                   
+
 
 ref:
 
