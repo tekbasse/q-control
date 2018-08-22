@@ -8,12 +8,12 @@ Q-control is designed to add some user controlled permissions for one or more pa
 </p>
 <h2>Problem defined</h2>
 <p>An organization may have silos, each with their own personnel.
-Each silo may be a division, a project, a classroom, a client with their own personnel, or some combination. Cominations are sometimes referred to as cross-functional business groups or under matrix management.
+Each silo may be a division, a project, a classroom, a client with their own personnel, or some combination. Combinations are sometimes referred to as cross-functional business groups or under matrix management.
 </p>
-<p>These complex permissions may be challenging to setup or represent a high maintainance administrative cost.</p>
+<p>These complex permissions may be challenging to setup or represent a high maintenance administrative cost.</p>
 <h2>q-control's solution</h2>
 <p>A typical computer solution is to use
-<a href="https://en.wikipedia.org/wiki/Access_control_list">access control lists</a>, or with OpenACS, to use the built-in super scalable object-based heirarchial permissions system.
+<a href="https://en.wikipedia.org/wiki/Access_control_list">access control lists</a>, or with OpenACS, to use the built-in super scalable object-based hierarchical permissions system.
 </p><p>
 Q-control's solution is to use a hybrid variant of
 <a href="https://en.wikipedia.org/wiki/Role-based_access_control">role-based_access_control</a> (RBAC)
@@ -34,7 +34,7 @@ Permission : Privilege This is consistent with OpenACS permissions: create read 
 </li><li>
 n/a : property_type or type of asset. This is somewhat consistent with OpenACS permissions' object_id or package_id which is a type of object_id.
 </li><li>
-n/a : instance_id : Same as OpenACS package_id, but can be pointed to another package_id, such as subsite_id. This means Q-Control provides a different set of perimssions just by varying the instance_id.
+n/a : instance_id : Same as OpenACS package_id, but can be pointed to another package_id, such as subsite_id. This means Q-Control provides a different set of permissions just by varying the instance_id.
 </li><li>
 n/a : contact_id This is a group identity that exists external to the website as apposed to ACL group ids that tend to be tied to specific functions. OpenACS uses group_id, a kind of object_id that can be used either way, and yet remains awkward to setup and use by a non-OpenACS admin.
 </li></ul>
@@ -43,7 +43,7 @@ n/a : contact_id This is a group identity that exists external to the website as
 <p>Subsequently, users become members of one or more owner contact_id</p>
 <p>An instance_id is associated with a set of roles, and a set of users assigned to contacts.
 <p>A user needs permission of an owner contact_id to access its instance_id 'zone'.</p>
-<p>Within an owner contact_id, users may be assigned to and provide functions to other contact_ids, where users may have different perimssions for the other contact_ids.  This is the heart of the Q-Control permissions advantage. Administration can occur at the user level for most all perissions.
+<p>Within an owner contact_id, users may be assigned to and provide functions to other contact_ids, where users may have different permissions for the other contact_ids.  This is the heart of the Q-Control permissions advantage. Administration can occur at the user level for most all permissions.
 </p>
 <h2>Recommendations</h2>
 <p>
@@ -79,7 +79,7 @@ Each role is a group, so create a group_type "acs_qc_roles" for each role  using
 Make each asset (type of object)  an acs_object, so create an object_id of a new acs_object_t\
 ype                                                                                                           
 
-Under development: permissions to be assigned by group to an object using openacs permisions UI.                                   
+Under development: permissions to be assigned by group to an object using openacs permissions UI.                                   
 
 
 ref:
