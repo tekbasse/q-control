@@ -45,6 +45,8 @@ n/a : contact_id This is a group identity that exists external to the website as
 <p>A user needs permission of an owner contact_id to access its instance_id 'zone'.</p>
 <p>Within an owner contact_id, users may be assigned to and provide functions to other contact_ids, where users may have different permissions for the other contact_ids.  This is the heart of the Q-Control permissions advantage. Administration can occur at the user level for most all permissions.
 </p>
+<p>A Q-Control privilege map is available in q-control/admin. It shows a current mapping of Role, Property, and Privilege for a given instance.</p>
+
 <h2>Recommendations</h2>
 <p>
 To any package requiring q-control, the following recommendations help to prevent issues
@@ -61,7 +63,7 @@ Use <code>qc_parameter_get</code> to get a parameter value.
 </li><li>
 for any package admin permission check, use <code>ad_conn package_id</code> 
 instead of instance_id provided by <code>qc_set_instance_id</code>,
-so that package admin access for any particular package is always enforced with direct Openacs permissions.
+so that package admin access for any particular package is always enforced with direct OpenACS permissions.
 </li><li>
 Avoid name collisions between package parameters.
 Verify that parameter names are unique for packages sharing q-control zone (subsite_id or package_id).
@@ -72,14 +74,14 @@ For internal (entity/owner), contact_id is the package_id returned by qc_set_ins
 </li>
 </ol>
 </p>
-<h3>Notes for integrating q-control into openacs permissions generally</h3>
+<h3>Notes for integrating q-control into OpenACS permissions generally</h3>
 <pre>
 Each role is a group, so create a group_type "acs_qc_roles" for each role  using group::new group_type
 
 Make each asset (type of object)  an acs_object, so create an object_id of a new acs_object_t\
 ype                                                                                                           
 
-Under development: permissions to be assigned by group to an object using openacs permissions UI.                                   
+Under development: permissions to be assigned by group to an object using OpenACS permissions UI.                                   
 
 
 ref:
