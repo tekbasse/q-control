@@ -51,6 +51,32 @@ ad_proc -public qc_set_instance_id {
     return $instance_id
 }
 
+ad_proc -public qc_set_contact_id {
+    Sets controlling / owner contact_id in calling environment.
+    Currently sets contact_id to instance_id per qc_set_instance_id.
+    However, it is envisioned that this will will return the contact_id
+    from a qc_set_instance_id using an instance_contact_id_map table.
+    This will allow an organization to operate multiple silos
+    without having to re-establish organizational permissions.
+    
+    @return contact_id.
+    @see qc_set_instance_id
+} {
+    upvar 1 instance_id u_instance_id
+    ##code See contacts paradim in accounts-contacts,
+    # and q-control/www/doc/design about how
+    # contact_id is defined as a type of object_id and
+    # a contact record, allowing for multiple instance_id security zones
+    # including in a matrix organization to simplify
+    # handling of otherwise complex permissions.
+    if { [info exists u_instance_id] } {
+	set contact_id $instance_id
+    } else {
+	set contact_id [qc_set_instance_id ]
+    }
+    return $contact_id
+}
+
 ad_proc -private qc_property_id {
     property
     {instance_id ""} 
