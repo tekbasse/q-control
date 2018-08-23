@@ -56,8 +56,8 @@ Is layered on top of OpenACS permissions.
 </li><li>
 Users must have OpenACS read privilege for each package implemented with, in order to invoke additional Q-Control approvals.
 </li><li>
-Users with OpenACS Package Admin privilege admin approval for package separately.
-Sitewide admins have admin rights for all implemented packages.
+A users's OpenACS Package Admin privilege is checked per package separately using standard OpenACS permissions.
+Sitewide admins have admin rights for all implemented packages, and relies on standard OpenACS permissions.
 Some apps, such as hosting-farm delegate some admin rights to read-only users in context of Q-control approvals.
 </li></ul>
 <p>For usage, see <a href="design">design</a> documentation.</p>
