@@ -63,6 +63,7 @@ ad_proc -public qc_set_contact_id {
     @see qc_set_instance_id
 } {
     upvar 1 instance_id u_instance_id
+    upvar 1 contact_id contact_id
     ##code See contacts paradim in accounts-contacts,
     # and q-control/www/doc/design about how
     # contact_id is defined as a type of object_id and
