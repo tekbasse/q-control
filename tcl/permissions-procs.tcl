@@ -52,6 +52,7 @@ ad_proc -public qc_set_instance_id {
 }
 
 ad_proc -public qc_set_contact_id {
+} {
     Sets controlling / owner contact_id in calling environment.
     Currently sets contact_id to instance_id per qc_set_instance_id.
     However, it is envisioned that this will will return the contact_id
@@ -71,7 +72,7 @@ ad_proc -public qc_set_contact_id {
     # including in a matrix organization to simplify
     # handling of otherwise complex permissions.
     if { [info exists u_instance_id] } {
-	set contact_id $instance_id
+	set contact_id $u_instance_id
     } else {
 	set contact_id [qc_set_instance_id ]
     }
