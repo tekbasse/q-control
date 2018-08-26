@@ -47,6 +47,8 @@ ad_proc -public qc_set_instance_id {
     }
     if { ![info exists u_instance_id] } {
         set u_instance_id $instance_id
+    } else {
+	set instance_id $u_instance_id
     }
     return $instance_id
 }
@@ -679,7 +681,7 @@ ad_proc -public qc_permission_p {
         # set instance_id package_id
         qc_set_instance_id
     }
-    ns_log Notice "qc_permission_p user_id '${user_id}' contact_id '${contact_id}' property_label '${property_label}' privilege '${privilege}' instance_id '${instance_id}'"
+    ns_log Notice "qc_permission_p.682 user_id '${user_id}' contact_id '${contact_id}' property_label '${property_label}' privilege '${privilege}' instance_id '${instance_id}'"
     # first, verify that the user has adequate system permission.
     # This needs to work at least for admins, in order to set up qc_permissions.
     #set allowed_p [permission::permission_p -party_id $user_id -object_id $instance_id -privilege $privilege]
@@ -726,6 +728,7 @@ ad_proc -public qc_permission_p {
         # contact_id eq ""
         set allowed_p 0
     }
+    ns_log Notice "qc_permission_p.729 user_id '${user_id}' contact_id '${contact_id}' property_label '${property_label}' privilege '${privilege}' instance_id '${instance_id}' allowed_p '${allowed_p}"
     return $allowed_p
 }
 
