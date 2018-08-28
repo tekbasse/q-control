@@ -45,6 +45,30 @@ n/a : contact_id This is a group identity that exists external to the website as
 <p>A user needs permission of an owner contact_id to access its instance_id 'zone'.</p>
 <p>Within an owner contact_id, users may be assigned to and provide functions to other contact_ids, where users may have different permissions for the other contact_ids.  This is the heart of the Q-Control permissions advantage. Administration can occur at the user level for most all permissions.
 </p>
+<p>For example, an organization may be using Accounts-Contacts package to provide a shared contact list for the organization. This contact list has the default property_type of organizational accounts (org_accounts). Permissions for working with the contact list is assigned at the owner organization level for org_accounts property_type.
+</p><p>
+How are permissions handled when..
+</p>
+<ul><li>
+..a person is assigned to serve specific contacts?
+</li><li>
+..a person is not allowed to modify other contacts?
+</li><li>
+..a person is not allowed to see other contacts?
+</li></ul>
+<p>Within the owner organization, each contact has a unique contact_id.
+The permissions for the contact_id are managed as a property_type,
+like the default 'org_accounts', only the contact is referenced as:
+contact_id-&gt;number reference of contact_id&lt;.
+</p><p>
+There are no pass-through default permissions.
+Permissions are granted per user assigned to the property_type with a role,
+in a manner similar to real life use. This makes
+the programming slightly more complex, and slower,
+and yet is more scalable because it is intuitive for most of the world users.
+No elaborate explanation of permissions is necessary.
+</p>
+
 <p>A Q-Control privilege map is available in q-control/admin. It shows a current mapping of Role, Property, and Privilege for a given instance.</p>
 
 <h2>Recommendations</h2>
