@@ -438,7 +438,6 @@ ad_proc -private qc_role_create {
                     ##code This proc should include a plural title..
                     set title_plural $title
 
-                    qc_role_create "" $label $title $description $instance_id
                     set group_label "qc_"
                     append group_label $label
                     set group_type_exists_p [db_0or1row qal_select_qc_grp_role { 
